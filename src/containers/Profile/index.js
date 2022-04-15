@@ -230,7 +230,7 @@ export default function Profile() {
                                             color='rgba(72, 77, 84, 1)'
                                             fontWeight='normal'
                                             title={'Share Profile on social media '}
-                                        />
+                                        /> 
 </TouchableOpacity>
                                         {/* <CustomText
                                             style={{
