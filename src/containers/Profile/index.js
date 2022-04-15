@@ -99,7 +99,7 @@ export default function Profile() {
 
 
     const like = async () => {
-        console.log({userid:userData?.id, profile_id:user?.id})
+        // console.log({userid:userData?.id, profile_id:user?.id})
         try {
             const response = await axios.post('https://arabiansuperstar.org/api/add_like',
             {userid:userData?.id, profile_id:user?.id},
