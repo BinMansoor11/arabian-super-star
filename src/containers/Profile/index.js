@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { View, Modal, Share, Image, TouchableOpacity, ScrollView } from 'react-native'
+import { View, Modal, Image, TouchableOpacity, ScrollView } from 'react-native'
 import {
     Button,
     CustomText,
@@ -13,6 +13,7 @@ import Video from 'react-native-video';
 import axios from 'axios';
 import { WithLocalSvg } from 'react-native-svg';
 import AsyncStorage from "@react-native-community/async-storage";
+import Share from 'react-native-share';
 
 
 
@@ -166,23 +167,36 @@ export default function Profile() {
 
     const onShare = async () => {
         console.log({Share})
-        try {
-            const result = await Share.share({
-                message:
-                    'Become an Arabian Superstar and get paid for your talent. Download the app here: https://play.google.com/store/apps/details?id=com.arabiansuperstar&hl=en',
-            });
-            if (result.action === Share.sharedAction) {
-                if (result.activityType) {
-                    // shared with activity type of result.activityType
-                } else {
-                    // shared
-                }
-            } else if (result.action === Share.dismissedAction) {
-                // dismissed
-            }
-        } catch (error) {
-            alert(error.message);
-        }
+        const shareOptions = {
+            title: 'Become an Arabian Superstar and get paid for your talent. Download the app here: https://play.google.com/store/apps/details?id=com.arabiansuperstar&hl=en',
+            // email: 'email@example.com',
+            social: Share.Social.EMAIL,
+            failOnCancel: false,
+          };
+        Share.open(shareOptions)
+  .then((res) => {
+    console.log(res);
+  })
+  .catch((err) => {
+    err && console.log(err);
+  });
+        // try {
+        //     const result = await Share.open({
+        //         message:
+        //             'Become an Arabian Superstar and get paid for your talent. Download the app here: https://play.google.com/store/apps/details?id=com.arabiansuperstar&hl=en',
+        //     });
+        //     if (result.action === Share.sharedAction) {
+        //         if (result.activityType) {
+        //             // shared with activity type of result.activityType
+        //         } else {
+        //             // shared
+        //         }
+        //     } else if (result.action === Share.dismissedAction) {
+        //         // dismissed
+        //     }
+        // } catch (error) {
+        //     alert(error.message);
+        // }
     };
 
     return (
