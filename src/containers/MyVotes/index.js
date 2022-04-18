@@ -192,18 +192,18 @@ export default function MyVotes({ navigation, route }) {
                         fontWeight='normal'
                         title={bucketData?.vote_bucket}
                     />
- <TouchableOpacity disabled={bucketData?.avilable_votes > 0 ? false:true} onPress={() => addVote()} >
-                    <CustomText
-                        style={{
-                            // width: Metrics.screenWidth * 0.8,
-                            alignSelf: 'center', marginTop: Metrics.ratio(20),
-                        }}
-                        fontSize={Metrics.ratio(16)}
-                        color='#CC2D3A'
-                        fontWeight='bold'
-                        title={'Vote Me'}
-                    />
-</TouchableOpacity>
+
+<Button
+                    onPress={() => addVote()}
+                    height={Metrics.ratio(40)}
+                    width={Metrics.screenWidth * 0.25}
+                    fontSize={Metrics.ratio(15)}
+                    title='Vote Me'
+                    style={{ alignSelf: 'center', marginVertical: Metrics.ratio(10),}}
+                    radius={Metrics.ratio(11)}
+                    disabled ={bucketData?.avilable_votes > 0 ? false:true}
+                />
+
                     <TouchableOpacity onPress={() => navigation.navigate('Packs')} ><CustomText
                         style={{
                             // width: Metrics.screenWidth * 0.8,

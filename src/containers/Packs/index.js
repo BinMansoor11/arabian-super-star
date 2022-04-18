@@ -77,7 +77,7 @@ export default function Packs({ navigation, route }) {
                         <View style={{ flexDirection: 'row', justifyContent: 'space-around', flexWrap: 'wrap' }}>
                             {packs?.map((item, index) => {
                                 return <View style={{
-                                    height: Metrics.screenHeight * 0.17,
+                                    height: Metrics.screenHeight * 0.2,
                                     width: Metrics.screenWidth * 0.35,
                                     backgroundColor: '#fff',
                                     elevation: 5,

@@ -9,7 +9,6 @@ import {
 import { Metrics, Colors, Images, Fonts, Icons } from '../../theme';
 import { useDispatch, useSelector } from 'react-redux';
 import axios from 'axios';
-import RNFetchBlob from 'rn-fetch-blob';
 
 
 export default function Confirm({ navigation, route }) {

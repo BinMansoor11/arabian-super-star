@@ -26,6 +26,7 @@ const initialState = {
   userData: null,
   dateToBeShown: null,
   token:'',
+  is_email_verified: false,
 };
 
 export default function (state = initialState, action) {
@@ -181,6 +182,12 @@ export default function (state = initialState, action) {
         token: action.payload,
       };
       break;
+      case 'is_email_verified':
+        return {
+          ...state,
+          is_email_verified: action.payload,
+        };
+        break;
     default:
       return state;
   }

@@ -124,7 +124,7 @@ export default function Login({ navigation, route }) {
             const response = await axios.post('https://arabiansuperstar.org/api/signin', { email, password }, { headers: { 'content-type': 'application/json' } });
             console.log({ response })
             // setUsername(response?.data?.username)
-            if (response?.data) {
+            if (response?.data?.status === 'success') {
                 dispatch({ type: 'userData', payload: response?.data?.user })
                 dispatch({ type: 'token', payload: response?.data?.token })
                 dispatch({ type: 'isLoggedIn', payload: true })

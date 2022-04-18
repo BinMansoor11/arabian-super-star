@@ -13,10 +13,7 @@ import {
 import { Metrics, Colors, Images, Fonts, Icons } from '../../theme';
 import { launchImageLibrary } from 'react-native-image-picker';
 import Video from 'react-native-video';
-import RNFetchBlob from 'rn-fetch-blob';
 import RNFS from 'react-native-fs';
-
-// import VideoPlayer from 'react-native-video-controls';
 
 import { useDispatch, useSelector } from 'react-redux';
 

@@ -20,19 +20,6 @@ export default function SignUpThree({ navigation }) {
     const [isLoading, setIsLoading] = useState(false)
     const [_nomins, setNomins] = useState([])
 
-    const [menNominations, setMenNominations] = useState([{ title: 'The Gentleman', active: true },
-    { title: 'Popular Choice', active: false },
-    { title: 'Pageant King', active: false },
-    { title: 'Fashion Style Icon', active: false },
-    { title: 'Pure Talent', active: false }])
-    const [womenNominations, setWomenNominations] = useState([
-        { title: 'Arabian Superstar', active: true },
-        { title: 'Popular Choice', active: false },
-        { title: 'Fashion Style Icon', active: false },
-        { title: 'Pure Talent', active: false },
-        { title: 'The Angel', active: false },
-        { title: 'Pageant Queen', active: false },
-    ])
 
     const [_nominations, setNominations] = useState(nominations?.length === 0 ? [] : nominations);
 

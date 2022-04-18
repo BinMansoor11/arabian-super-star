@@ -12,24 +12,26 @@ export default function CheckBox(props) {
         text,
         oneText,
         twoText,
-        style
+        style, 
+        isSelected,
     } = props
     const [toggleCheckBox, setToggleCheckBox] = useState(false);
     return (
-        <View style={{ ...style, backgroundColor: '#fff', flexDirection: 'row', alignItems: 'center' }}>
+        <View style={{ ...style, backgroundColor: '#fff', flexDirection: 'row', alignItems: 'center', }}>
             <TouchableOpacity
                 onPress={() => setToggleCheckBox(!toggleCheckBox)}
                 style={styles.checkbox}>
-                {toggleCheckBox && (
-                    <Icons.Feather
-                        name="check"
-                        color="#707070"
-                        size={Metrics.ratio(13)}
-                    />
+                {(isSelected) && (
+                   <View style={{
+                    height: Metrics.ratio(10),
+                    width: Metrics.ratio(10),
+                    backgroundColor:Colors.primary,
+                    borderRadius:15,
+                   }} />
                 )}
             </TouchableOpacity>
             <Text style={{
-                color: '#D6324A',
+                color: Colors.primary,
                 fontWeight: 'bold',
                 fontSize: Metrics.ratio(16),
                 textAlign: 'center'

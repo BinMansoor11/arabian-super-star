@@ -15,18 +15,39 @@ import { Metrics, Colors, Images, Fonts, Icons } from '../../theme';
 import axios from 'axios';
 
 export default function Search({ navigation, route }) {
-    const { userData } = useSelector(state => state.root);
-    const [comments, setComments] = useState([]);
+    const { userData,nationality } = useSelector(state => state.root);
+    const [gender, setGender] = useState(null);
     const [searches, setSearches] = useState([]);
     const [type, setType] = useState('');
     const [modalVisible, setModalVisible] = useState(false);
+    const [genderModalVisible, setGenderModalVisible] = useState(false);
+    const [_nationality, setNationality] = useState(nationality === '' ? '' : nationality);
+    const [optionModalVisible, setOptionModalVisible] = useState(false);
+    const [nationalities, setNationalities] = useState([]);
+
+    const getCountries = async () => {
+        // setIsLoading(true)
+        try {
+            const response = await axios.get('https://arabiansuperstar.org/api/get_counties');
+            setNationalities(response?.data)
+            // setIsLoading(false)
+        } catch (error) {
+            console.log({ error })
+            // setIsLoading(false)
+        }
+    }
 
 
 
     const search = async (text) => {
         try {
             const response = await axios.post('https://arabiansuperstar.org/api/search',
-                { search: text , type },
+                { 
+                    search: text, 
+                    type,
+                    country: _nationality,
+                    gender : gender ? gender?.toLowerCase() : gender
+                 },
                 { headers: { "Content-Type": "application/json" } });
             console.log({ search: response })
             setSearches(response?.data)
@@ -36,6 +57,7 @@ export default function Search({ navigation, route }) {
     }
 
     useEffect(() => {
+        getCountries()
         search('')
     }, [])
 
@@ -61,29 +83,132 @@ export default function Search({ navigation, route }) {
                         />
 
                     </View>
-                    <TouchableOpacity onPress={() => setModalVisible(true)}>
+                    <TouchableOpacity onPress={() => setModalVisible(!modalVisible)}>
                         <Icons.AntDesign name={'bars'} color={'rgba(46, 46, 46, 0.7)'} size={Metrics.ratio(25)} style={{ marginLeft: Metrics.ratio(0) }} />
                     </TouchableOpacity>
                 </View>
+
+                {modalVisible && <View style={{
+                    borderRadius: 5,
+                    borderColor: Colors.primary,
+                    borderWidth: 1,
+                    width: Metrics.screenWidth * 0.9,
+                    alignSelf: 'center',
+                    flexDirection: 'row',
+                    justifyContent: 'space-evenly',
+                    flexWrap: 'wrap',
+                }}>
+                    <>{['Full Name', 'User Name', 'Email', 'Nationality', 'Nominities', 'Gender'].map((item, index) => {
+                        return <TouchableOpacity
+                            onPress={() => index === 5 ? setGenderModalVisible(true) : setType(JSON.stringify(index))}
+                            style={{ flexDirection: 'row', width: Metrics.screenWidth * 0.4, marginVertical: 10 }}>
+
+                            {index !== 5 && <CheckBox
+                                isSelected={JSON.stringify(index) === type ? true : false}
+                                style={{ width: 20 }} />}
+                            <CustomText
+                                style={{}}
+                                fontSize={Metrics.ratio(14)}
+                                color='rgba(72, 77, 84, 1)'
+                                fontWeight='normal'
+                                title={item}
+                            />
+
+                            {index === 5 && <CustomText
+                                style={{ marginLeft: Metrics.ratio(10) }}
+                                fontSize={Metrics.ratio(14)}
+                                color='rgba(72, 77, 84, 1)'
+                                fontWeight='normal'
+                                title={gender ? gender : 'Select'}
+                            />}
+                        </TouchableOpacity>
+                    })}
+
+                        <TouchableOpacity
+                            onPress={() => setOptionModalVisible(true)} 
+                            style={{
+                                height: Metrics.ratio(40),
+                                width: Metrics.screenWidth * 0.85,
+                                alignItems: 'center',
+                                flexDirection: 'row',
+                                borderWidth: Metrics.ratio(1),
+                                borderColor: '#CC2D3A',
+                                borderRadius: Metrics.ratio(11), marginBottom: Metrics.ratio(10)
+                            }}
+                        >
+                            <CustomText
+                                style={{
+                                    width: Metrics.screenWidth * 0.8,
+                                    alignSelf: 'center',
+                                    paddingLeft: Metrics.ratio(10),
+                                }}
+                                fontSize={Metrics.ratio(16)}
+                                color='#000'
+                                fontWeight='normal'
+                                title={_nationality !== '' ? _nationality : 'Select Country'}
+                            />
+                            <Icons.Ionicons name={'caret-down-sharp'} color={'#CC2D3A'} size={Metrics.ratio(20)} style={{ marginLeft: -Metrics.ratio(15) }} />
+                        </TouchableOpacity>
+                    </>
+                </View>}
+
+                <Modal
+                                            animationType="none"
+                                            transparent={true}
+                                            visible={optionModalVisible}
+                                            onRequestClose={() => {
+                                                setOptionModalVisible(!optionModalVisible);
+                                            }}
+                                        >
+                                            <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(0,0,0,0.5)' }}>
+                                                <View style={{
+                                                    backgroundColor: '#fff',
+                                                    height: Metrics.screenHeight * 0.7,
+                                                    width: Metrics.screenWidth * 0.8,
+                                                    borderRadius: Metrics.ratio(11),
+                                                }} >
+                                                    <ScrollView>
+                                                        <View>
+                                                            {nationalities?.map((item, index) => {
+                                                                return <TouchableOpacity onPress={() => (setNationality(item?.title), setOptionModalVisible(!optionModalVisible))}>
+                                                                    <CustomText
+                                                                        style={{
+                                                                            width: Metrics.screenWidth * 0.8,
+                                                                            alignSelf: 'center', marginTop: Metrics.ratio(10),
+                                                                            marginVertical: Metrics.ratio(15),
+                                                                            textAlign: 'center',
+                                                                        }}
+                                                                        fontSize={Metrics.ratio(16)}
+                                                                        color='#000'
+                                                                        fontWeight='normal'
+                                                                        title={item?.title}
+                                                                    />
+                                                                </TouchableOpacity>
+                                                            })}
+                                                        </View>
+                                                    </ScrollView>
+                                                </View>
+                                            </View>
+                                        </Modal>
 
 
                 <Modal
                     animationType="none"
                     transparent={true}
-                    visible={modalVisible}
+                    visible={genderModalVisible}
                     onRequestClose={() => {
                         //   Alert.alert("Modal has been closed.");
-                        setModalVisible(!modalVisible);
+                        setGenderModalVisible(!genderModalVisible);
                     }}
                 >
                     <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(0,0,0,0.5)' }}>
                         <View style={{
                             backgroundColor: '#fff',
-                            height: Metrics.screenHeight * 0.3,
+                            height: Metrics.screenHeight * 0.2,
                             width: Metrics.screenWidth * 0.8,
                             borderRadius: Metrics.ratio(11),
                         }} >
-                            <TouchableOpacity onPress={() => setModalVisible(!modalVisible)}>
+                            <TouchableOpacity onPress={() => setGenderModalVisible(!genderModalVisible)}>
                                 <Icons.Entypo style={{ alignSelf: 'flex-end', marginTop: Metrics.ratio(10), marginHorizontal: Metrics.ratio(10) }} name={'cross'} color={'#000'} size={Metrics.ratio(20)} />
                             </TouchableOpacity>
                             <View style={{ justifyContent: 'space-between', flex: 1, paddingBottom: Metrics.ratio(20), paddingLeft: Metrics.ratio(70) }}>
@@ -95,9 +220,9 @@ export default function Search({ navigation, route }) {
                                     fontSize={Metrics.ratio(18)}
                                     color="#000"
                                     fontWeight='bold'
-                                    title={'Search By :'}
+                                    title={'Select Gender:'}
                                 />
-                                <TouchableOpacity onPress={() => (setModalVisible(!modalVisible), setType('0'))}>
+                                <TouchableOpacity onPress={() => (setGenderModalVisible(!genderModalVisible), setGender('Male'))}>
 
                                     <CustomText
                                         style={{
@@ -106,11 +231,11 @@ export default function Search({ navigation, route }) {
                                         fontSize={Metrics.ratio(14)}
                                         color='rgba(72, 77, 84, 1)'
                                         fontWeight='normal'
-                                        title={'Full Name'}
+                                        title={'Male'}
                                     />
                                 </TouchableOpacity>
 
-                                <TouchableOpacity onPress={() => (setModalVisible(!modalVisible), setType('1'))}>
+                                <TouchableOpacity onPress={() => (setGenderModalVisible(!genderModalVisible), setGender('Female'))}>
 
                                     <CustomText
                                         style={{
@@ -119,33 +244,7 @@ export default function Search({ navigation, route }) {
                                         fontSize={Metrics.ratio(14)}
                                         color='rgba(72, 77, 84, 1)'
                                         fontWeight='normal'
-                                        title={'Username'}
-                                    />
-                                </TouchableOpacity>
-
-                                <TouchableOpacity onPress={() => (setModalVisible(!modalVisible), setType('2'))}>
-
-                                    <CustomText
-                                        style={{
-                                            alignSelf: 'center', marginTop: Metrics.ratio(15), width: Metrics.screenWidth * 0.8,
-                                        }}
-                                        fontSize={Metrics.ratio(14)}
-                                        color='rgba(72, 77, 84, 1)'
-                                        fontWeight='normal'
-                                        title={'Email'}
-                                    />
-                                </TouchableOpacity>
-                                <TouchableOpacity onPress={() => (setModalVisible(!modalVisible), setType('3'))}>
-
-
-                                    <CustomText
-                                        style={{
-                                            alignSelf: 'center', marginTop: Metrics.ratio(15), width: Metrics.screenWidth * 0.8,
-                                        }}
-                                        fontSize={Metrics.ratio(14)}
-                                        color='rgba(72, 77, 84, 1)'
-                                        fontWeight='normal'
-                                        title={'Nationality'}
+                                        title={'Female'}
                                     />
                                 </TouchableOpacity>
                             </View>
@@ -158,7 +257,7 @@ export default function Search({ navigation, route }) {
 
                     <View style={{ width: '100%', justifyContent: 'center' }}>
                         {searches?.map((item, index) => {
-                            return <TouchableOpacity  onPress={() => navigation.navigate('MyTabs', { profileId: item?.id })} style={{ flexDirection: 'row', paddingVertical: Metrics.ratio(10), paddingHorizontal: Metrics.ratio(20), }}>
+                            return <TouchableOpacity onPress={() => navigation.navigate('MyTabs', { profileId: item?.id })} style={{ flexDirection: 'row', paddingVertical: Metrics.ratio(10), paddingHorizontal: Metrics.ratio(20), }}>
                                 <Image style={{
                                     width: Metrics.ratio(55),
                                     height: Metrics.ratio(55),
@@ -167,7 +266,7 @@ export default function Search({ navigation, route }) {
                                     overflow: 'hidden',
                                 }}
                                     source={{ uri: `https://arabiansuperstar.org/public/${item?.social_profile_image}` }}
-                                    resizeMode='contain'
+                                    resizeMode='cover'
                                 />
                                 <View style={{ height: Metrics.ratio(55), justifyContent: 'center', }}>
                                     <CustomText

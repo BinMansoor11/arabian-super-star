@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView } from 'react-native'
+import { View, Text, FlatList, Image, TouchableOpacity, ScrollView } from 'react-native'
 import {
     Header,
     Button,
@@ -46,7 +46,7 @@ export default function Home({ navigation, route }) {
                 isLoading={true}
                 size="large"
             />}
-                <ScrollView style={{ backgroundColor: '#fff' }}>
+                {/* <ScrollView style={{ backgroundColor: '#fff' }}> */}
 
 
                     <View style={{ elevation: 5, backgroundColor: '#fff' }}>
@@ -72,14 +72,50 @@ export default function Home({ navigation, route }) {
                             fontWeight='bold'
                             title={'TOP CONTESTANT'}
                         />
+                        <FlatList
+                        data={topContestants}
+                        renderItem={({ item }) => {
+                            return<TouchableOpacity onPress={() => navigation.navigate('MyTabs', { profileId: item?.user?.id })} style={{ marginVertical: Metrics.ratio(15), alignItems: 'center' }}>
+                            <View style={{
+                                 width: Metrics.ratio(60),
+                                 height:Metrics.ratio(60),
+                            }}>
+                                <Image style={{
+                                    width: '100%',
+                                    height: '100%',
+                                    overflow: 'hidden',
+                                    borderRadius: 999,
+                                }}
+                                    source={{ uri: `http://arabiansuperstar.org/public/${item?.user?.social_profile_image}` }}
+                                    resizeMode='cover'
+                                />
+                            </View>
+                            <CustomText
+                                style={{
+                                    width: Metrics.screenWidth * 0.25,
+                                    // alignSelf: 'center', 
+                                    marginTop: Metrics.ratio(5),
+                                    textAlign: 'center',
+                                }}
+                                fontSize={Metrics.ratio(9)}
+                                color='#787C81'
+                                fontWeight='normal'
+                                title={item?.user?.full_name}
+                            />
+                        </TouchableOpacity>
+                        }}
+                        keyExtractor={item => item.id}
+                        initialNumToRender={5}
+                        horizontal={true}
+                    />
 
-                        <ScrollView horizontal>
+                        {/* <ScrollView horizontal>
                             <View style={{ flexDirection: 'row' }}>
                                 {topContestants?.map((item, index) => {
                                     return <TouchableOpacity onPress={() => navigation.navigate('MyTabs', { profileId: item?.id })} style={{ marginVertical: Metrics.ratio(15), alignItems: 'center' }}>
                                         <View style={{
-                                            width: Metrics.screenHeight * 0.07,
-                                            height: Metrics.screenHeight * 0.07,
+                                             width: Metrics.ratio(60),
+                                             height:Metrics.ratio(60),
                                         }}>
                                             <Image style={{
                                                 width: '100%',
@@ -88,7 +124,7 @@ export default function Home({ navigation, route }) {
                                                 borderRadius: 999,
                                             }}
                                                 source={{ uri: `http://arabiansuperstar.org/public/${item?.user?.social_profile_image}` }}
-                                                resizeMode='contain'
+                                                resizeMode='cover'
                                             />
                                         </View>
                                         <CustomText
@@ -106,7 +142,7 @@ export default function Home({ navigation, route }) {
                                     </TouchableOpacity>
                                 })}
                             </View>
-                        </ScrollView>
+                        </ScrollView> */}
 
                     </View>
 
@@ -124,13 +160,16 @@ export default function Home({ navigation, route }) {
                         title={'Discover'}
                     />
 
-                    {users?.map((item, index) => {
-                        return <TouchableOpacity onPress={() => navigation.navigate('MyTabs', { profileId: item?.id })} style={{ alignSelf: 'center', width: Metrics.screenWidth * 0.9, height: Metrics.screenHeight * 0.5, backgroundColor: '#fff', elevation: 5, borderRadius: Metrics.ratio(11), marginVertical: Metrics.ratio(10) }}>
-                            <View style={{ flexDirection: 'row', paddingVertical: Metrics.ratio(10), paddingHorizontal: Metrics.ratio(20) }}>
+                   
+                    <FlatList
+                        data={users}
+                        renderItem={({ item }) => {
+                            return <TouchableOpacity onPress={() => navigation.navigate('MyTabs', { profileId: item?.id })} style={{ alignSelf: 'center', width: Metrics.screenWidth * 0.9, height: Metrics.screenHeight * 0.5, backgroundColor: '#fff', elevation: 5, borderRadius: Metrics.ratio(11), marginVertical: Metrics.ratio(10) }}>
+                            <View style={{ flexDirection: 'row', paddingVertical: Metrics.ratio(10), paddingHorizontal: Metrics.ratio(20), alignItems:'center' }}>
 
                                 <View style={{
-                                    width: Metrics.screenHeight * 0.08,
-                                    height: Metrics.screenHeight * 0.08,
+                                    width: Metrics.ratio(45),
+                                    height:Metrics.ratio(45),
 
                                     marginRight: Metrics.ratio(10),
                                 }}>
@@ -141,7 +180,7 @@ export default function Home({ navigation, route }) {
                                         borderRadius: 999,
                                     }}
                                         source={{ uri: `https://arabiansuperstar.org/public/${item?.social_profile_image}` }}
-                                        resizeMode='contain'
+                                        resizeMode='cover'
                                     />
                                 </View>
                                 <View>
@@ -149,7 +188,7 @@ export default function Home({ navigation, route }) {
                                         style={{
                                             width: Metrics.screenWidth * 0.9,
                                             alignSelf: 'center',
-                                            marginTop: Metrics.ratio(15),
+                                            // marginTop: Metrics.ratio(15),
                                             // textAlign:'center',
                                         }}
                                         fontSize={Metrics.ratio(15)}
@@ -184,9 +223,11 @@ export default function Home({ navigation, route }) {
                                 resizeMode='stretch'
                             />
                         </TouchableOpacity>
-                    })}
-
-                </ScrollView>
+                        }}
+                        keyExtractor={item => item.id}
+                        initialNumToRender={2}
+                    />
+                {/* </ScrollView> */}
             </View>
         </Footer>
     )

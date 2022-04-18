@@ -17,7 +17,6 @@ import axios from 'axios';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { launchImageLibrary } from 'react-native-image-picker';
 import Video from 'react-native-video';
-import RNFetchBlob from 'rn-fetch-blob';
 import RNFS from 'react-native-fs';
 
 
@@ -44,8 +43,8 @@ export default function Edit({ navigation, route }) {
         social_id,
         social_type,
         userData,
-    } =  useSelector(state => state.root);
-// } = useSelector(state => state.root);
+    } = useSelector(state => state.root);
+    // } = useSelector(state => state.root);
     const [isLoading, setIsLoading] = useState(false)
     const [show, setShow] = useState(false);
     const [textColor, setTextColor] = useState();
@@ -59,6 +58,7 @@ export default function Edit({ navigation, route }) {
     const [maximumDate, setMaximumDate] = useState();
     const [date, setDate] = useState(new Date())
     const [shownDate, setShownDate] = useState('')
+    const [dateToBeSent, setDateToBeSent] = useState('')
     const [day, setDay] = useState('')
     const [month, setMonth] = useState('')
     const [year, setYear] = useState('')
@@ -74,6 +74,9 @@ export default function Edit({ navigation, route }) {
     const [_bio, setBio] = useState('');
     const [_hobbies, setHobbies] = useState('');
     const [_password, setPassword] = useState('');
+    const [_nominations, setNominations] = useState([]);
+    const [_prof_Nominations, setProfNominations] = useState([]);
+
 
 
     const options = {
@@ -82,16 +85,20 @@ export default function Edit({ navigation, route }) {
     }
 
     const [images, setImages] = useState([]);
+    const [imagesToBeSent, setImagesToBeSent] = useState([]);
     const [video, setVideo] = useState('');
     const [isPaused, setIsPaused] = useState(false)
     const [profilePic, setProfilePic] = useState({})
     const [sendVideo, setSendVideo] = useState(null)
 
+    const [tabs, setTabs] = useState('Edit Profile');
+
+
     const getPictures = (index) => {
         launchImageLibrary({}, (response) => {
             // console.log(JSON.stringify(response?.assets[0]?.uri,null,2))
             const newImages = [...images];
-            console.log({newImagesBef:newImages})
+            console.log({ newImagesBef: newImages })
             RNFS.readFile(response?.assets[0]?.uri, 'base64').then(res => {
                 newImages[index] = {
                     uri: response?.assets[0]?.uri,
@@ -101,19 +108,25 @@ export default function Edit({ navigation, route }) {
                 }
                 for (let i = newImages?.length; i < 21; i++) {
                     newImages.push({})
-               }
-               // setImages(imgArray)
-   
-               setImages(newImages);
-               // setIsLoading(false)
-               console.log({newImages})
+                }
+                // setImages(imgArray)
+                
+                setImages(newImages);
+                setImagesToBeSent([...imagesToBeSent, {
+                    uri: response?.assets[0]?.uri,
+                    type: 'image/jpeg',
+                    name: 'filename',
+                    data: res
+                }])
+                // setIsLoading(false)
+                console.log({ newImages })
             })
-            .catch(err => {
-                console.log(err.message, err.code);
-            });
+                .catch(err => {
+                    console.log(err.message, err.code);
+                });
 
             // var imgArray = [...response?.data?.userdetail?.geller_images]
-           
+
 
         })
     }
@@ -128,11 +141,11 @@ export default function Edit({ navigation, route }) {
                     name: 'filename',
                     data: res
                 })
-               
+
             })
-            .catch(err => {
-                console.log(err.message, err.code);
-            });
+                .catch(err => {
+                    console.log(err.message, err.code);
+                });
 
         })
     }
@@ -198,9 +211,10 @@ export default function Edit({ navigation, route }) {
             setYear(_year)
             const newdate = _day + "/" + _month + "/" + _year;
             setShownDate(newdate)
+            setDateToBeSent(dateObj)
 
-            console.log(toMonthName(1), _month)
-            getZodiac(_day, toMonthName(_month))
+            // console.log(toMonthName(1), _month)
+            setZodiac(getZodiac(dateObj))
             // dispatch({ type: 'dateToBeShown', payload: {_day, _month, _year} })
         } else {
             alert('You must be 18 years old to register')
@@ -208,15 +222,29 @@ export default function Edit({ navigation, route }) {
 
     }
 
-    const getZodiac = async (day, month) => {
-        try {
-            const response = await axios.post('https://arabiansuperstar.org/api/astro_sign', { day: `${day}`, month: month?.toLowerCase() }, { headers: { 'content-type': 'application/json' } });
-            console.log(response?.data)
-            setZodiac(response?.data?.sign)
-        } catch (error) {
-            console.log({ error })
-        }
-    }
+    const getZodiac = (date) => {
+        const days = [21, 20, 21, 21, 22, 22, 23, 24, 24, 24, 23, 22];
+        const signs = ["Aquarius", "Pisces", "Aries", "Taurus", "Gemini", "Cancer", "Leo",    "Virgo", "Libra", "Scorpio", "Sagittarius", "Capricorn"];
+        let month = date.getMonth();
+        let day = date.getDate();
+        if(month == 0 && day <= 20){
+           month = 11;
+        }else if(day < days[month]){
+           month--;
+        };
+        return signs[month];
+     };
+
+
+    // const getZodiac = async (day, month) => {
+    //     try {
+    //         const response = await axios.post('https://arabiansuperstar.org/api/astro_sign', { day: `${day}`, month: month?.toLowerCase() }, { headers: { 'content-type': 'application/json' } });
+    //         console.log(response?.data)
+    //         setZodiac(response?.data?.sign)
+    //     } catch (error) {
+    //         console.log({ error })
+    //     }
+    // }
 
 
 
@@ -236,7 +264,7 @@ export default function Edit({ navigation, route }) {
         setIsLoading(true)
         try {
             const response = await axios.post('https://arabiansuperstar.org/api/fetch_my_detail',
-                { userid: userData?.id},
+                { userid: userData?.id },
                 { headers: { "Content-Type": "application/json" } });
             console.log({ fetch_my_detail: response?.data?.userdetail })
             setUserProfile(response?.data?.userdetail)
@@ -245,6 +273,7 @@ export default function Edit({ navigation, route }) {
                 !imgArray[i]?.image && imgArray.push({})
             }
             setImages(imgArray)
+            setProfNominations(response?.data?.userdetail?.nominities)
             setIsLoading(false)
         } catch (error) {
             setIsLoading(false)
@@ -269,8 +298,8 @@ export default function Edit({ navigation, route }) {
         var bodyFormData = new FormData();
 
         bodyFormData.append('userid', userProfile?.id);
-        bodyFormData.append('bio',_bio !== '' ? _bio : userProfile?.bio)
-        bodyFormData.append('video',  video === '' ? userProfile?.video_path : video)
+        bodyFormData.append('bio', _bio !== '' ? _bio : userProfile?.bio)
+        {sendVideo   && bodyFormData.append('video', sendVideo?.video)}
         bodyFormData.append('hobbies', _hobbies !== '' ? _hobbies : userProfile?.hobbies)
         bodyFormData.append('country', _country !== '' ? _country : userProfile?.country_of_residence)
         bodyFormData.append('nationality', _nationality !== '' ? _nationality : userProfile?.nationality)
@@ -279,20 +308,21 @@ export default function Edit({ navigation, route }) {
         bodyFormData.append('social_email', social_email !== '' ? social_email : 'N/A')
         bodyFormData.append('social_id', social_id !== '' ? social_id : 'N/A')
         bodyFormData.append('social_type', social_type !== '' ? social_type : 'N/A')
-        bodyFormData.append('profile', image_gallery[0]?.data)
+        bodyFormData.append('profile', profilePic?.uri  ? profilePic?.data : 'N/A')
         bodyFormData.append('fullname', _fullName !== '' ? _fullName : userProfile?.full_name)
-        bodyFormData.append('username', username)
-        bodyFormData.append('email', email)
+        bodyFormData.append('username', username !== '' ? username : userProfile?.username)
+        bodyFormData.append('email', email !== '' ? email : userProfile?.email)
         bodyFormData.append('phone', _phone !== '' ? _phone : userProfile?.phone)
-        bodyFormData.append('password', password)
+        bodyFormData.append('password', password !== '' ? password : userProfile?.pwd)
         bodyFormData.append('gender', gender === 0 ? 'Male' : 'Female')
-        bodyFormData.append('d_o_b', date_of_birth)
-        bodyFormData.append('zodiac',_zodiac !== '' ? _zodiac : userProfile?.zodiac)
+        bodyFormData.append('d_o_b', date_of_birth !== '' ? date_of_birth : dateToBeSent)
+        bodyFormData.append('zodiac', _zodiac !== '' ? _zodiac : userProfile?.zodiac)
         bodyFormData.append('selected_nominities', userProfile?.nominations)
-        
+
         const imgs = images.filter(image => Object.keys(image).length !== 0)
-        console.log({imgs})
-        bodyFormData.append('gellery', imgs?.length !== userProfile?.geller_images?.length ? imgs : userProfile?.geller_images)
+        console.log({ imgs })
+        // bodyFormData.append('gellery', imgs?.length !== userProfile?.geller_images?.length ? imgs : userProfile?.geller_images)
+        bodyFormData.append('gellery', imagesToBeSent?.length === 0 ? [] : imagesToBeSent)
 
         try {
 
@@ -313,15 +343,92 @@ export default function Edit({ navigation, route }) {
     }
 
     useEffect(() => {
-        getCountries()
         getUserDetails()
-       
+        getCountries()
+        getNomination()
     }, [])
 
     const onPickerSelect = (title) => {
         modalOption === 'nationality' ? setNationality(title) : setCountry(title)
         setOptionModalVisible(!optionModalVisible)
 
+    }
+
+    const deleteImage = async (item, index) => {
+        console.log({ item, index })
+        setIsLoading(true)
+        try {
+
+            const response = await axios.post('https://arabiansuperstar.org/api/gallery_remove',
+                {
+                    imgid: item.id,
+                    // userid: userProfile?.id
+                },
+                { headers: { "Content-Type": "application/json" } }
+            );
+            console.log({ update: response })
+            getUserDetails()
+        } catch (error) {
+            console.log({ error })
+            setIsLoading(false)
+        }
+    }
+
+
+    const setActive = async (index) => {
+        const duplicateArray = [..._nominations];
+
+        setIsLoading(true)
+        try {
+
+            const response = await axios.post(`https://arabiansuperstar.org/api/${duplicateArray[index].seleced ? 'nominity_remove': 'nominity_add'}`,
+                {
+                    nid: duplicateArray[index]?.id,
+                    user_id: userProfile?.id
+                },
+                { headers: { "Content-Type": "application/json" } }
+            );
+            console.log({ nominations: response })
+
+            
+        duplicateArray[index].seleced = duplicateArray[index]?.seleced ? 0 : 1
+        console.log({ duplicateArray })
+        setNominations(duplicateArray)
+        setIsLoading(false)
+        } catch (error) {
+            console.log({ error })
+            setIsLoading(false)
+        }
+
+        // setNomins(getActives())
+    }
+
+    const getActives = () => {
+        const actives = _nominations.filter(item => item.active === true)
+        const activeIds = actives.map(item => item.id)
+        return activeIds
+    }
+
+
+    const getNomination = async () => {
+        setIsLoading(true)
+        try {
+            const response = await axios.post('https://arabiansuperstar.org/api/user_nominites', { gender: gender === 0 ? 'Male' : 'Female', user_id: userData?.id }, { headers: { 'content-type': 'application/json' } });
+            const arrayNomins = []
+            for (const [key, value] of Object.entries(response?.data)) {
+                // console.log(value,key)
+                
+                arrayNomins.push(value)
+            }
+            // setNationalities(response?.data)
+            console.log({ getNominations: response?.data, arrayNomins })
+            setNominations(arrayNomins)
+
+            setIsLoading(false)
+        } catch (error) {
+            console.log({ error })
+            setIsLoading(false)
+        }
     }
 
     return (
@@ -346,36 +453,31 @@ export default function Edit({ navigation, route }) {
                         />
                     </TouchableOpacity>
                 </View>
-                <ScrollView>
+                <ScrollView  >
                     <View style={{ marginBottom: Metrics.screenHeight * 0.1 }}>
                         <View style={{ flexDirection: 'row', alignSelf: 'center' }}>
-                            <TouchableOpacity onPress={() => setIsChecked(false)}>
-                                <CustomText
-                                    style={{
-                                        width: Metrics.screenWidth * 0.4,
-                                        alignSelf: 'center', marginTop: Metrics.ratio(15),
-                                    }}
-                                    fontSize={Metrics.ratio(24)}
-                                    color={!isChecked ? '#000' : 'rgba(0, 0, 0, 0.5)'}
-                                    fontWeight='bold'
-                                    title={'Edit Profile'}
-                                />
-                            </TouchableOpacity>
-                            <TouchableOpacity onPress={() => setIsChecked(true)}>
-                                <CustomText
-                                    style={{
-                                        width: Metrics.screenWidth * 0.4,
-                                        alignSelf: 'center', marginTop: Metrics.ratio(15),
-                                    }}
-                                    fontSize={Metrics.ratio(24)}
-                                    color={isChecked ? '#000' : 'rgba(0, 0, 0, 0.5)'}
-                                    fontWeight='bold'
-                                    title={'Edit Media'}
-                                />
-                            </TouchableOpacity>
-
+                            <>
+                                <ScrollView horizontal={true} showsHorizontalScrollIndicator={false}>
+                                    {['Edit Profile', 'Edit Media', 'Edit Nominations'].map((item, index) => {
+                                        return <TouchableOpacity onPress={() => setTabs(item)}>
+                                            <CustomText
+                                                style={{
+                                                    // width: Metrics.screenWidth * 0.5,
+                                                    alignSelf: 'center',
+                                                    marginTop: Metrics.ratio(15),
+                                                    marginLeft: Metrics.ratio(35),
+                                                }}
+                                                fontSize={Metrics.ratio(24)}
+                                                color={tabs === item ? '#000' : 'rgba(0, 0, 0, 0.5)'}
+                                                fontWeight='bold'
+                                                title={item}
+                                            />
+                                        </TouchableOpacity>
+                                    })}
+                                </ScrollView>
+                            </>
                         </View>
-                        {!isChecked ? <>
+                        {tabs === 'Edit Profile' ? <>
                             <View style={{
                                 flexDirection: 'row',
                                 justifyContent:
@@ -391,7 +493,7 @@ export default function Edit({ navigation, route }) {
                                     customStyle={{ width: Metrics.screenWidth * 0.8 }}
                                     placeholder='Full Name'
                                     onChangeText={(text) => setFullName(text)}
-                                    value={_fullName !== '' ? _fullName :  userProfile?.full_name}
+                                    value={_fullName !== '' ? _fullName : userProfile?.full_name}
                                 />
                             </View>
 
@@ -410,9 +512,9 @@ export default function Edit({ navigation, route }) {
                                 <CustomTextInput
                                     customStyle={{ width: Metrics.screenWidth * 0.8 }}
                                     placeholder='Date Of Birth'
-                                    value={shownDate !== '' ? shownDate : JSON.stringify(userProfile?.userProfile?.date_of_birth)?.substring(0, JSON.stringify(date_of_birth)?.indexOf('T'))?.split('-')?.reverse()?.join('/')}
+                                    value={shownDate !== '' ? shownDate : JSON.stringify(userProfile?.date_of_birth)?.substring(0, JSON.stringify(userProfile?.date_of_birth)?.indexOf('T'))?.split('-')?.reverse()?.join('/')}
                                     disabled={true}
-                                />  
+                                />
                             </TouchableOpacity>
 
                             {show && <DateTimePicker
@@ -604,9 +706,9 @@ export default function Edit({ navigation, route }) {
                             />
                         </>
                             :
-                            <>
+                            tabs === 'Edit Media' ? <>
 
-<CustomText
+                                <CustomText
                                     style={{
                                         width: Metrics.screenWidth * 0.8,
                                         alignSelf: 'center', marginTop: Metrics.ratio(10),
@@ -627,22 +729,41 @@ export default function Edit({ navigation, route }) {
                                     flexWrap: 'wrap',
                                     height: Metrics.screenHeight * 0.3,
                                     marginBottom: Metrics.ratio(50),
-                                }} ><TouchableOpacity
-                                                onPress={() => getProfilePic()}
-                                                style={{
-                                                    height: Metrics.screenHeight * 0.3,
-                                        width: Metrics.screenWidth * 0.8,
-                                        borderWidth: Metrics.ratio(1),
-                                        borderRadius: Metrics.ratio(11),
-                                        borderColor: '#CC2D3A',
-                                        marginBottom: Metrics.ratio(20),
-                                        alignItems: 'center',
-                                        justifyContent: 'center',
-                                        alignSelf: 'center',
-                                        overflow: 'hidden'
-                                                }}>
-                                                {(userProfile?.social_profile_image || profilePic?.uri) ? <Image style={{ height: '100%', width: '100%', }} source={{ uri: profilePic?.uri ? profilePic?.uri :  `https://arabiansuperstar.org/public/${userProfile?.social_profile_image}` }} /> : <Icons.FontAwesome name='camera' size={Metrics.ratio(20)} color='#CC2D3A' />
-}</TouchableOpacity>
+                                }} >
+                                    {/* {(userProfile?.social_profile_image || profilePic?.uri) && <TouchableOpacity style={{
+                                    // alignSelf: 'flex-end',
+                                    // marginRight:Metrics.ratio(25),
+                                    position: 'absolute',
+                                    top: Metrics.ratio(2),
+                                    right: -Metrics.ratio(7),
+                                    zIndex: 111,
+                                    backgroundColor: 'rgba(0,0,0,0.7)',
+                                    height: Metrics.ratio(22),
+                                    width: Metrics.ratio(22),
+                                    justifyContent: 'center',
+                                    alignItems: 'center',
+                                    borderRadius: Metrics.ratio(22)
+                                }}
+                                // onPress={() => setOptionModalVisible(true)}
+                                >
+                                    <Icons.Entypo name={'cross'} color={'#fff'} size={Metrics.ratio(15)} />
+                                </TouchableOpacity>} */}
+                                    <TouchableOpacity
+                                        onPress={() => getProfilePic()}
+                                        style={{
+                                            height: Metrics.screenHeight * 0.3,
+                                            width: Metrics.screenWidth * 0.8,
+                                            borderWidth: Metrics.ratio(1),
+                                            borderRadius: Metrics.ratio(11),
+                                            borderColor: '#CC2D3A',
+                                            marginBottom: Metrics.ratio(20),
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            alignSelf: 'center',
+                                            overflow: 'hidden'
+                                        }}>
+                                        {(userProfile?.social_profile_image || profilePic?.uri) ? <Image style={{ height: '100%', width: '100%', }} source={{ uri: profilePic?.uri ? profilePic?.uri : `https://arabiansuperstar.org/public/${userProfile?.social_profile_image}` }} /> : <Icons.FontAwesome name='camera' size={Metrics.ratio(20)} color='#CC2D3A' />
+                                        }</TouchableOpacity>
                                 </View>
 
                                 <CustomText
@@ -669,23 +790,46 @@ export default function Edit({ navigation, route }) {
                                 }} >
                                     {images?.map((item, index) => {
                                         return (
-                                            <TouchableOpacity
-                                                onPress={() => getPictures(index)}
-                                                style={{
-                                                    height: Metrics.screenHeight * 0.08,
-                                                    width: Metrics.screenWidth * 0.15,
-                                                    borderWidth: Metrics.ratio(1),
-                                                    borderRadius: Metrics.ratio(11),
-                                                    borderColor: '#CC2D3A',
-                                                    marginBottom: Metrics.ratio(20),
-                                                    alignItems: 'center',
-                                                    justifyContent: 'center',
-                                                    overflow: 'hidden'
-                                                }}>
-                                                {(item?.uri || item?.imagepath) ? <Image style={{ height: '100%', width: '100%', }} source={{ uri: item?.uri ? item?.uri : `https://arabiansuperstar.org/public/${item?.imagepath}/${item?.image}` }} /> : <Icons.FontAwesome name='camera' size={Metrics.ratio(20)} color='#CC2D3A' />
-                                                }
-                                            </TouchableOpacity>
-                                        )
+                                            <View>
+                                                {(item?.uri || item?.imagepath) && <TouchableOpacity
+                                                    onPress={() => deleteImage(item, index)}
+                                                    style={{
+                                                        // alignSelf: 'flex-end',
+                                                        // marginRight:Metrics.ratio(25),
+                                                        position: 'absolute',
+                                                        top: -Metrics.ratio(5),
+                                                        right: -Metrics.ratio(5),
+                                                        zIndex: 111,
+                                                        backgroundColor: 'rgba(0,0,0,0.7)',
+                                                        height: Metrics.ratio(18),
+                                                        width: Metrics.ratio(18),
+                                                        justifyContent: 'center',
+                                                        alignItems: 'center',
+                                                        borderRadius: Metrics.ratio(18)
+                                                    }}
+                                                // onPress={() => setOptionModalVisible(true)}
+                                                >
+                                                    <Icons.Entypo name={'cross'} color={'#fff'} size={Metrics.ratio(15)} />
+                                                </TouchableOpacity>}
+                                                <TouchableOpacity
+                                                    onPress={() => getPictures(index)}
+                                                    style={{
+                                                        height: Metrics.screenHeight * 0.08,
+                                                        width: Metrics.screenWidth * 0.15,
+                                                        borderWidth: Metrics.ratio(1),
+                                                        borderRadius: Metrics.ratio(11),
+                                                        borderColor: '#CC2D3A',
+                                                        marginBottom: Metrics.ratio(20),
+                                                        alignItems: 'center',
+                                                        justifyContent: 'center',
+                                                        overflow: 'hidden'
+                                                    }}
+                                                    disabled={(item?.uri || item?.imagepath) ? true : false}
+                                                >
+                                                    {(item?.uri || item?.imagepath) ? <Image style={{ height: '100%', width: '100%', }} source={{ uri: item?.uri ? item?.uri : `https://arabiansuperstar.org/public/${item?.imagepath}/${item?.image}` }} /> : <Icons.FontAwesome name='camera' size={Metrics.ratio(20)} color='#CC2D3A' />
+                                                    }
+                                                </TouchableOpacity>
+                                            </View>)
                                     })}
                                 </View>
 
@@ -700,6 +844,7 @@ export default function Edit({ navigation, route }) {
                                     fontWeight='normal'
                                     title={'Video'}
                                 />
+
                                 <TouchableOpacity
                                     onPress={() => getVideo()}
                                     style={{
@@ -712,10 +857,29 @@ export default function Edit({ navigation, route }) {
                                         alignItems: 'center',
                                         justifyContent: 'center',
                                         alignSelf: 'center',
-                                        overflow: 'hidden'
+                                        // overflow: 'hidden'
                                     }}>
+                                    {/* {true &&
+                                         <TouchableOpacity style={{
+                                    // alignSelf: 'flex-end',
+                                    // marginRight:Metrics.ratio(25),
+                                    position: 'absolute',
+                                    top: -Metrics.ratio(7),
+                                    right: -Metrics.ratio(7),
+                                    zIndex: 111,
+                                    backgroundColor: 'rgba(0,0,0,0.7)',
+                                    height: Metrics.ratio(22),
+                                    width: Metrics.ratio(22),
+                                    justifyContent: 'center',
+                                    alignItems: 'center',
+                                    borderRadius: Metrics.ratio(22)
+                                }}
+                                // onPress={() => setOptionModalVisible(true)}
+                                >
+                                    <Icons.Entypo name={'cross'} color={'#fff'} size={Metrics.ratio(15)} />
+                                </TouchableOpacity>} */}
                                     {/* {video === '' ? <Video source={{ uri: video === '' ? video_path?.uri : video }} style={{ width: '100%', height: '100%' }} resizeMode='cover' paused={isPaused} muted={true} /> : <Icons.FontAwesome name='camera' size={Metrics.ratio(20)} color='#CC2D3A' />} */}
-                                   <Video source={{ uri: video === '' ? video_path?.uri : video }} style={{ width: '100%', height: '100%' }} resizeMode='cover' paused={isPaused} muted={true} />
+                                    <Video source={{ uri: video === '' ? video_path?.uri : video }} style={{ width: '100%', height: '100%' }} resizeMode='cover' paused={isPaused} muted={true} />
                                 </TouchableOpacity>
                                 <Button
                                     onPress={() => edit()}
@@ -726,7 +890,44 @@ export default function Edit({ navigation, route }) {
                                     style={{ alignSelf: 'center', marginTop: Metrics.ratio(15), marginBottom: Metrics.ratio(20) }}
                                     radius={Metrics.ratio(11)}
                                 />
-                            </>}
+                            </> : <View style={{ height: Metrics.screenHeight * 0.7 }}>
+                                <CustomText
+                                    style={{
+                                        width: Metrics.screenWidth * 0.8,
+                                        alignSelf: 'center', marginTop: Metrics.ratio(10),
+                                        marginVertical: Metrics.ratio(15),
+                                    }}
+                                    fontSize={Metrics.ratio(14)}
+                                    color='#000'
+                                    fontWeight='normal'
+                                    title={'You’re now nominated to be the Arabian Superstar enroll yourself for more titles!'}
+                                />
+
+                                <View style={{
+                                    flexDirection: 'row',
+                                    width: Metrics.screenWidth * 0.8,
+                                    alignSelf: 'center',
+                                    justifyContent: 'space-between',
+                                    flexWrap: 'wrap',
+                                }} >
+                                    {_nominations?.map((item, index) => {
+                                        return (
+                                            <Button
+                                                onPress={() => setActive(index)}
+                                                height={Metrics.ratio(50)}
+                                                fontSize={Metrics.ratio(15)}
+                                                title={item?.nominity_name}
+                                                style={{ alignSelf: 'center', marginTop: Metrics.ratio(15), marginBottom: Metrics.ratio(10), paddingHorizontal: Metrics.ratio(25) }}
+                                                radius={Metrics.ratio(11)}
+                                                border={item?.seleced ? false : true}
+                                            />
+                                        )
+                                    })}
+
+
+                                </View>
+
+                            </View>}
                     </View>
                     <View style={{ height: '100%', width: '100%', justifyContent: 'flex-end', alignItems: 'center', flexDirection: 'row' }}>
                         <Modal
