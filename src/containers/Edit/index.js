@@ -920,6 +920,7 @@ export default function Edit({ navigation, route }) {
                                                 style={{ alignSelf: 'center', marginTop: Metrics.ratio(15), marginBottom: Metrics.ratio(10), paddingHorizontal: Metrics.ratio(25) }}
                                                 radius={Metrics.ratio(11)}
                                                 border={item?.seleced ? false : true}
+                                                disabled={item?.nominity_name === 'Arabian SuperStar' ? true : false}
                                             />
                                         )
                                     })}

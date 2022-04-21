@@ -14,6 +14,7 @@ import { Metrics, Colors, Images, Fonts, Icons } from '../../theme';
 import { launchImageLibrary } from 'react-native-image-picker';
 import Video from 'react-native-video';
 import RNFS from 'react-native-fs';
+import ImagePicker from 'react-native-image-crop-picker';
 
 import { useDispatch, useSelector } from 'react-redux';
 
@@ -27,7 +28,7 @@ const options = {
 export default function SignUpFour({ navigation }) {
     const dispatch = useDispatch();
     const { image_gallery, bio, video_path } = useSelector(state => state.root);
-    const [images, setImages] = useState(image_gallery?.length === 0 ? [{}, {}, {}, {}, {}, {},{}, {}, {}, {}, {}, {},{}, {}, {}, {}, {}, {},{}, {}, {},] : image_gallery);
+    const [images, setImages] = useState(image_gallery?.length === 0 ? [{}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},] : image_gallery);
     const [video, setVideo] = useState(video_path === '' ? null : video_path?.uri);
     const [about, setAbout] = useState(bio === '' ? null : bio)
     const [isPaused, setIsPaused] = useState(false)
@@ -36,27 +37,45 @@ export default function SignUpFour({ navigation }) {
 
 
     const getPictures = (index) => {
-        launchImageLibrary({}, (response) => {
-            // console.log(JSON.stringify(response?.assets[0]?.uri,null,2))
-            const newImages = [...images]
-            newImages[index]['uri'] = response?.assets[0]?.uri
-            // console.log({newImages})
-            setImages(newImages);
-
-            RNFS.readFile(response?.assets[0]?.uri, 'base64').then(res => {
-                setSendImages([...sendImages, {
-                    uri: response?.assets[0]?.uri,
+        var imgs = []
+        ImagePicker.openPicker({
+            multiple: true,
+            maxFiles: 21,
+        }).then(image => {
+            image.forEach(async item => {
+                const res = await RNFS.readFile(item?.path, 'base64');
+                imgs.push({
+                    uri: item?.path,
                     type: 'image/jpeg',
                     name: 'filename',
-                    data:res
-                }]);
+                    data: res
+                });
             })
-            .catch(err => {
-                console.log(err.message, err.code);
-            });
+        });
 
-            
-        })
+        setSendImages(imgs);
+
+        // launchImageLibrary({}, (response) => {
+        //     // console.log(JSON.stringify(response?.assets[0]?.uri,null,2))
+        //     const newImages = [...images]
+        //     newImages[index]['uri'] = response?.assets[0]?.uri
+        //     // console.log({newImages})
+        //     setImages(newImages);
+
+        //     RNFS.readFile(response?.assets[0]?.uri, 'base64').then(res => {
+        //         setSendImages([...sendImages, {
+        //             uri: response?.assets[0]?.uri,
+        //             type: 'image/jpeg',
+        //             name: 'filename',
+        //             data:res
+        //         }]);
+        //     })
+        //     .catch(err => {
+        //         console.log(err.message, err.code);
+        //     });
+
+
+        // })
     }
 
     const getVideo = () => {
@@ -76,10 +95,10 @@ export default function SignUpFour({ navigation }) {
                     video: res
                 })
             })
-            .catch(err => {
-                console.log(err.message, err.code);
-            });
-           
+                .catch(err => {
+                    console.log(err.message, err.code);
+                });
+
         })
 
 
@@ -101,16 +120,16 @@ export default function SignUpFour({ navigation }) {
     return (
         <View style={{ flex: 1, backgroundColor: '#fff' }}>
             <View style={{ height: Metrics.screenHeight * 0.79 }}>
-                <TouchableOpacity 
-                onPress={() => navigation?.goBack()}
-                style={{
-                    marginTop: Metrics.screenHeight * 0.04,
-                    marginBottom: Metrics.screenHeight * 0.01,
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    width: Metrics.screenWidth * 0.8,
-                    alignSelf: 'center',
-                }}>
+                <TouchableOpacity
+                    onPress={() => navigation?.goBack()}
+                    style={{
+                        marginTop: Metrics.screenHeight * 0.04,
+                        marginBottom: Metrics.screenHeight * 0.01,
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        width: Metrics.screenWidth * 0.8,
+                        alignSelf: 'center',
+                    }}>
                     <Icons.Feather name={'chevron-left'} color={'rgba(46, 46, 46, 0.7)'} size={Metrics.ratio(24)} style={{ marginLeft: -Metrics.ratio(7) }} />
                     <CustomText
                         style={{
@@ -170,11 +189,41 @@ export default function SignUpFour({ navigation }) {
                         width: Metrics.screenWidth * 0.8,
                         alignSelf: 'center',
                         justifyContent: 'space-between',
-                        flexWrap: 'wrap',
-                        height: Metrics.screenHeight * 0.45,
-                        marginBottom: Metrics.ratio(50),
+                        // flexWrap: 'wrap',
+                        // height: Metrics.screenHeight * 0.2,
+                        // marginBottom: Metrics.ratio(50),
                     }} >
-                        {images?.map((item, index) => {
+                        <TouchableOpacity
+                            onPress={() => getPictures()}
+                            style={{
+                                height: Metrics.screenHeight * 0.15,
+                                width: Metrics.screenHeight * 0.15,
+                                borderWidth: Metrics.ratio(1),
+                                borderRadius: Metrics.ratio(11),
+                                borderColor: '#CC2D3A',
+                                // marginBottom: Metrics.ratio(20),
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                overflow: 'hidden'
+                            }}>
+                            {sendImages[0]?.uri ? <Image style={{ height: '100%', width: '100%', }} source={{ uri: sendImages[0]?.uri }} /> : <Icons.FontAwesome name='camera' size={Metrics.ratio(20)} color='#CC2D3A' />
+                            }
+                        </TouchableOpacity>
+                       <CustomText
+                            style={{
+                                width: Metrics.screenWidth * 0.5,
+                                alignSelf: 'center',
+                                marginLeft:20,
+                                // backgroundColor:'red'
+                                // marginTop: Metrics.ratio(10),
+                                // marginVertical: Metrics.ratio(15),
+                            }}
+                            fontSize={Metrics.ratio(14)}
+                            color='#000'
+                            fontWeight='normal'
+                            title={`${sendImages?.length} Photos Selected`}
+                        />
+                        {/* {images?.map((item, index) => {
                             return (
                                 <TouchableOpacity
                                     onPress={() => getPictures(index)}
@@ -193,7 +242,7 @@ export default function SignUpFour({ navigation }) {
                                     }
                                 </TouchableOpacity>
                             )
-                        })}
+                        })} */}
                     </View>
 
                     <CustomText
@@ -268,7 +317,7 @@ export default function SignUpFour({ navigation }) {
                 </View>
                 <Image style={{
 
-height: Metrics.screenHeight * 0.07,
+                    height: Metrics.screenHeight * 0.07,
                     width: Metrics.screenWidth * 0.6,
                     alignSelf: 'center',
                     marginTop: Metrics.ratio(10), bottom: 0

@@ -4,9 +4,7 @@ import {
     Header,
     Button,
     CustomText,
-    Separator,
-    CustomTextInput,
-    VenueCard,
+    ActivityIndicator,
     Footer,
     CheckBox
 } from '../../components'
@@ -18,12 +16,16 @@ export default function Search({ navigation, route }) {
     const { userData,nationality } = useSelector(state => state.root);
     const [gender, setGender] = useState(null);
     const [searches, setSearches] = useState([]);
+    const [searchText, setSearchText] = useState('');
     const [type, setType] = useState('');
     const [modalVisible, setModalVisible] = useState(false);
     const [genderModalVisible, setGenderModalVisible] = useState(false);
     const [_nationality, setNationality] = useState(nationality === '' ? '' : nationality);
     const [optionModalVisible, setOptionModalVisible] = useState(false);
     const [nationalities, setNationalities] = useState([]);
+
+    const [isLoading, setIsLoading] = useState(false)
+
 
     const getCountries = async () => {
         // setIsLoading(true)
@@ -39,11 +41,12 @@ export default function Search({ navigation, route }) {
 
 
 
-    const search = async (text) => {
+    const search = async () => {
+        setIsLoading(true)
         try {
             const response = await axios.post('https://arabiansuperstar.org/api/search',
                 { 
-                    search: text, 
+                    search: searchText, 
                     type,
                     country: _nationality,
                     gender : gender ? gender?.toLowerCase() : gender
@@ -51,19 +54,25 @@ export default function Search({ navigation, route }) {
                 { headers: { "Content-Type": "application/json" } });
             console.log({ search: response })
             setSearches(response?.data)
+            setIsLoading(false)
         } catch (error) {
             console.log({ error })
+            setIsLoading(false)
         }
     }
 
     useEffect(() => {
         getCountries()
-        search('')
+        search()
     }, [])
 
     return (
         <Footer>
             <View style={{ flex: 1, backgroundColor: '#fff' }}>
+            {isLoading && <ActivityIndicator
+                    isLoading={true}
+                    size="large"
+                />}
                 <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', elevation: 5, backgroundColor: '#fff', height: Metrics.ratio(75), width: Metrics.screenWidth, }}>
                     <Icons.Feather name={'search'} color={'rgba(46, 46, 46, 0.7)'} size={Metrics.ratio(25)} style={{ marginLeft: Metrics.ratio(15) }} />
                     <View style={{
@@ -78,7 +87,7 @@ export default function Search({ navigation, route }) {
                             placeholder='Search'
                             placeholderTextColor={'#7C8085'}
                             style={{ fontFamily: Fonts.type.RobotoRegular, color: '#000', paddingLeft: Metrics.ratio(15) }}
-                            onChangeText={(text) => search(text)}
+                            onChangeText={(text) => setSearchText(text)}
                         // value={comment}
                         />
 
@@ -149,6 +158,19 @@ export default function Search({ navigation, route }) {
                             />
                             <Icons.Ionicons name={'caret-down-sharp'} color={'#CC2D3A'} size={Metrics.ratio(20)} style={{ marginLeft: -Metrics.ratio(15) }} />
                         </TouchableOpacity>
+
+                        <Button
+                                                onPress={() => search()}
+                                                height={Metrics.ratio(40)}
+                                                width={Metrics.screenWidth * 0.85}
+                                                fontSize={Metrics.ratio(15)}
+                                                title={'GO'}
+                                                style={{ 
+                                                    alignSelf: 'center', marginBottom: Metrics.ratio(15), paddingHorizontal: Metrics.ratio(25) }}
+                                                radius={Metrics.ratio(11)}
+                                                // border={item?.seleced ? false : true}
+                                                // disabled={item?.nominity_name === 'Arabian SuperStar' ? true : false}
+                                            />
                     </>
                 </View>}
 

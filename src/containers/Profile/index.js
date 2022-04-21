@@ -113,6 +113,7 @@ export default function Profile() {
                 const duplicate = { ...user }
                 duplicate.isAlreadyRated = 1
                 setUser(duplicate)
+                getUserDetails()
             } else {
                 alert(response?.data?.msg)
             }
@@ -562,8 +563,8 @@ export default function Profile() {
                                 return (
                                     item?.active && <Button
                                         onPress={() => null}
-                                        height={Metrics.ratio(35)}
-                                        fontSize={Metrics.ratio(10)}
+                                        height={Metrics.ratio(40)}
+                                        fontSize={Metrics.ratio(14)}
                                         title={item?.title}
                                         style={{
                                             alignSelf: 'center', marginTop: Metrics.ratio(5), marginBottom: Metrics.ratio(5), paddingHorizontal: Metrics.ratio(20),
@@ -590,15 +591,15 @@ export default function Profile() {
                             fontWeight='bold'
                             title={'Photos'}
                         />
-                        <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
+                        <View style={{ flexDirection: 'row', flexWrap: 'wrap', marginTop: Metrics.ratio(20) }}>
                             {user?.geller_images?.map((item, index) => {
-                                return <TouchableOpacity onPress={() => setModalVisible(true)}>
+                                return <TouchableOpacity  onPress={() => setModalVisible(true)}>
                                     <Image style={{
 
                                         height: Metrics.screenHeight * 0.2,
                                         width: Metrics.screenWidth / 3,
                                         // alignSelf: 'center',
-                                        marginTop: Metrics.ratio(20),
+                                        // marginTop: Metrics.ratio(20),
                                         borderWidth: 1,
                                         borderColor: '#fff'
                                     }}

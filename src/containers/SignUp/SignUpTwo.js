@@ -48,6 +48,7 @@ export default function SignUpTwo({ navigation }) {
 
 
     const [optionModalVisible, setOptionModalVisible] = useState(false);
+    const [countryModalVisible, setCountryModalVisible] = useState(false);
 
     const [country, setCountry] = useState(country_of_residence === 'United Arab Emirates' ? 'United Arab Emirates' : country_of_residence)
     const modalVisible = false
@@ -232,22 +233,61 @@ export default function SignUpTwo({ navigation }) {
                                     flexDirection: 'row',
                                     alignItems: 'center',
                                 }}>
-                                    {index < 1 ? <><CountryPicker
-                                        {...{
-                                            countryCode,
-                                            withFilter,
-                                            withFlag,
-                                            withCountryNameButton,
-                                            withAlphaFilter,
-                                            withCallingCode,
-                                            withEmoji,
-                                            onSelect,
-                                        }}
-                                        modalVisible
-                                        containerButtonStyle={{ height: '100%', width: Metrics.screenWidth * 0.75, justifyContent: 'center', marginLeft: Metrics.ratio(10) }}
-                                    />
-                                        <Icons.Ionicons name={'caret-down-sharp'} color={'#CC2D3A'} size={Metrics.ratio(20)} style={{ marginLeft: -Metrics.ratio(30) }} />
-                                    </> :
+                                    {index < 1 ?  <View style={{ height: '100%', width: '100%', justifyContent: 'flex-end', alignItems: 'center', flexDirection: 'row' }}>
+                                            <Modal
+                                                animationType="none"
+                                                transparent={true}
+                                                visible={countryModalVisible}
+                                                onRequestClose={() => {
+                                                    setCountryModalVisible(!countryModalVisible);
+                                                }}
+                                            >
+                                                <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(0,0,0,0.5)' }}>
+                                                    <View style={{
+                                                        backgroundColor: '#fff',
+                                                        height: Metrics.screenHeight * 0.7,
+                                                        width: Metrics.screenWidth * 0.8,
+                                                        borderRadius: Metrics.ratio(11),
+                                                    }} >
+                                                        <ScrollView>
+                                                            <View>
+                                                                {nationalities?.map((item, index) => {
+                                                                    return <TouchableOpacity onPress={() => (setCountry(item?.title), setCountryModalVisible(!countryModalVisible))}>
+                                                                        <CustomText
+                                                                            style={{
+                                                                                width: Metrics.screenWidth * 0.8,
+                                                                                alignSelf: 'center', marginTop: Metrics.ratio(10),
+                                                                                marginVertical: Metrics.ratio(15),
+                                                                                textAlign: 'center',
+                                                                            }}
+                                                                            fontSize={Metrics.ratio(16)}
+                                                                            color='#000'
+                                                                            fontWeight='normal'
+                                                                            title={item?.title}
+                                                                        />
+                                                                    </TouchableOpacity>
+                                                                })}
+                                                            </View>
+                                                        </ScrollView>
+                                                    </View>
+                                                </View>
+                                            </Modal>
+                                            <TouchableOpacity onPress={() => setCountryModalVisible(true)} style={{ height: '100%', width: Metrics.screenWidth * 0.8, alignItems: 'center', flexDirection: 'row' }}>
+                                                <CustomText
+                                                    style={{
+                                                        width: Metrics.screenWidth * 0.8,
+                                                        alignSelf: 'center', marginTop: Metrics.ratio(10),
+                                                        marginVertical: Metrics.ratio(15),
+                                                        paddingLeft: Metrics.ratio(10),
+                                                    }}
+                                                    fontSize={Metrics.ratio(16)}
+                                                    color='#000'
+                                                    fontWeight='normal'
+                                                    title={country}
+                                                />
+                                                <Icons.Ionicons name={'caret-down-sharp'} color={'#CC2D3A'} size={Metrics.ratio(20)} style={{ marginLeft: -Metrics.ratio(38) }} />
+                                            </TouchableOpacity>
+                                        </View> :
                                         <View style={{ height: '100%', width: '100%', justifyContent: 'flex-end', alignItems: 'center', flexDirection: 'row' }}>
                                             <Modal
                                                 animationType="none"

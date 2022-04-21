@@ -186,10 +186,10 @@ console.log({verificationCode , newVerificationCode})
                                 <TextInput
                                     style={{ fontFamily: Fonts.type.RobotoRegular, color: '#000', width: (index === 4 || index === 5) ? Metrics.screenWidth * 0.7 : Metrics.screenWidth * 0.8 }}
                                     keyboardType={item.title === 'Mobile Number' ? 'numeric' : 'default'}
-                                    editable={index === 1 ? false : true}
-                                    value={item.value}
+                                    editable={index === 1 ? false : (index === 2 && (verificationCode || is_email_verified))  ? false : true}
+
                                     onChangeText={text => item.onChangeText(text)}
-                                    secureTextEntry={item.shown}
+                                    secureTextEntry={item.shown}                                    value={item.value}
                                 />
                                 {(index === 4 || index === 5) && <TouchableOpacity
                                     onPress={() => item.shown ? index === 4 ? setShowPassword(false) : setShowConfirmPassword(false) : index === 4 ? setShowPassword(true) : setShowConfirmPassword(true)}
@@ -247,7 +247,7 @@ console.log({verificationCode , newVerificationCode})
                                     height={Metrics.ratio(35)}
                                     width={Metrics.screenWidth * 0.8}
                                     fontSize={Metrics.ratio(15)}
-                                    title={verificationCode ?'Send Code':  'Verify Email'}
+                                    title={!verificationCode ?'Send Code':  'Verify Email'}
                                     fontFamily={Fonts.type.RobotoRegular}
                                     style={{ alignSelf: 'center', marginVertical: Metrics.ratio(10) }}
                                     radius={Metrics.ratio(11)}

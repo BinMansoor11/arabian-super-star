@@ -46,8 +46,8 @@ export default function SignUpThree({ navigation }) {
             console.log({ getNominations: response?.data })
             const arrayNomins = []
             for (const [key, value] of Object.entries(response?.data)) {
-                // console.log(value,key)
-                value.active = (key === '0' || key === '4') ? true : false
+                console.log(value,key)
+                value.active = ((key === '0' || key === '4') || value?.nominity_name === 'Arabian SuperStar') ? true : false
                 arrayNomins.push(value)
             }
             // setNationalities(response?.data)
@@ -176,6 +176,7 @@ export default function SignUpThree({ navigation }) {
                                     style={{ alignSelf: 'center', marginTop: Metrics.ratio(15), marginBottom: Metrics.ratio(10), paddingHorizontal: Metrics.ratio(25) }}
                                     radius={Metrics.ratio(11)}
                                     border={item?.active ? false : true}
+                                    disabled = {item?.nominity_name === 'Arabian SuperStar' ? true : false}
                                 />
                             )
                         })}
