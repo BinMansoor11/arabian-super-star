@@ -180,7 +180,7 @@ export default function Home({ navigation, route }) {
                                         overflow: 'hidden',
                                         borderRadius: 999,
                                     }}
-                                        source={{ uri: `https://arabiansuperstar.doodlenk.com/public/${item?.social_profile_image}` }}
+                                        source={{ uri: `https://arabiansuperstar.org/public/${item?.social_profile_image}` }}
                                         defaultSource={require('../../assets/images/placeholder.jpg')}
                                         resizeMode='cover'
                                     />
@@ -221,7 +221,7 @@ export default function Home({ navigation, route }) {
                                 borderRadius: 14,
                                 // marginRight: Metrics.ratio(25),
                             }}
-                                source={{ uri: `https://arabiansuperstar.doodlenk.com/public/${item?.geller_images[0]?.imagepath}/${item?.geller_images[0]?.image}` }}
+                                source={{ uri: `https://arabiansuperstar.org/public/${item?.geller_images[0]?.imagepath}/${item?.geller_images[0]?.image}` }}
                                 defaultSource={require('../../assets/images/placeholder.jpg')}
                                 resizeMode='stretch'
                             />

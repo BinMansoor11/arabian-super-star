@@ -1,4 +1,4 @@
-import React from 'react'
+import React , { useState }from 'react'
 import { View, Text, TouchableOpacity, Image, TextInput, ScrollView } from 'react-native'
 import {
     Header,
@@ -11,13 +11,38 @@ import {
     CheckBox
 } from '../../components'
 import { Metrics, Colors, Images, Fonts, Icons } from '../../theme';
+import axios from 'axios';
+
+export default function NewPassword({ navigation, route }) {
 
 
+    const [password, setPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
 
-const array = ['Arabian Superstar', 'Popular Choice', 'Fashion Style Icon', 'Pure Talent', 'The Gentleman', 'Pageant King']
 
+    const updatePassword = async () => {
+        // setIsLoading(true)
+        if (password !== confirmPassword) {
+            alert('Password does not match')
+            return
+        }
+        try {
+            const response = await axios.post('https://arabiansuperstar.org/api/update_password', { email : route?.params?.email, password }, { headers: { 'content-type': 'application/json' } });
+            console.log({ updatePassword: response?.data })
+            // setIsLoading(false)
+           if(response?.data?.status === 'success'){
+            //   setVerificationCode(response?.data?.random_id)
+              navigation.navigate('Login')
+           }else {
+            alert(response?.data?.msg)
+           }
+        } catch (error) {
+            alert('Something went wrong')
+            console.log({ error })
+            // setIsLoading(false)  
+        }
+    }
 
-export default function NewPassword({ navigation }) {
     return (
         <View style={{ flex: 1, backgroundColor: '#fff' }}>
              <TouchableOpacity
@@ -92,7 +117,11 @@ export default function NewPassword({ navigation }) {
                         alignSelf: 'center',
                         marginTop: Metrics.ratio(10),
                     }}>
-                        <TextInput />
+                        <TextInput 
+                         style={{ fontFamily: Fonts.type.RobotoRegular, color: '#000', width: Metrics.screenWidth * 0.8 }}
+                         onChangeText={text => setPassword(text)}
+                         value={password}
+                        />
                     </View>
 
 
@@ -118,13 +147,17 @@ export default function NewPassword({ navigation }) {
                         alignSelf: 'center',
                         marginTop: Metrics.ratio(10),
                     }}>
-                        <TextInput />
+                        <TextInput
+                         style={{ fontFamily: Fonts.type.RobotoRegular, color: '#000', width: Metrics.screenWidth * 0.8 }}
+                         onChangeText={text => setConfirmPassword(text)}
+                         value={confirmPassword}
+                        />
                     </View>
                 </View>
                 <View style={{ justifyContent: 'flex-end', height: Metrics.screenHeight * 0.2 }}>
 
                     <Button
-                        onPress={() => null}
+                        onPress={() => updatePassword()}
                         height={Metrics.ratio(50)}
                         width={Metrics.screenWidth * 0.8}
                         fontSize={Metrics.ratio(15)}

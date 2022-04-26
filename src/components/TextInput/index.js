@@ -12,7 +12,8 @@ export function CustomTextInput(props) {
         rightButton,
         disabled,
         onChangeText, 
-        value
+        value, 
+        maxLength,
     } = props
 
     return (
@@ -26,6 +27,7 @@ export function CustomTextInput(props) {
                 onChangeText={(text) => onChangeText(text)}
                 secureTextEntry={rightButton ? !show : false}
                 value={value}
+                maxLength={maxLength}
             />
             {rightButton &&
                 <TouchableOpacity onPress={()=> setShow(!show)} style={{marginLeft:-Metrics.ratio(40)}}>

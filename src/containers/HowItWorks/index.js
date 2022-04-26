@@ -44,9 +44,9 @@ export default function HowItWorks({ navigation, route }) {
         setIsLoading(true)
         try {
             const response = await axios.get('https://arabiansuperstar.org/api/how_it_works');
-            setHows(response?.data?.terms_and_conditions)
+            setHows(response?.data?.data?.terms_and_conditions)
 
-            console.log({ response: response?.data })
+            console.log({ response: response?.data?.data })
             setIsLoading(false)
         } catch (error) {
             console.log({ error })
@@ -104,7 +104,7 @@ export default function HowItWorks({ navigation, route }) {
                                 fontSize={Metrics.ratio(14)}
                                 color={'#000'}
                                 fontWeight='bold'
-                                title={hows[0]?.content}
+                                title={hows?.length > 0 && hows[0]?.content}
                             />
 
                             <CustomText
@@ -117,7 +117,7 @@ export default function HowItWorks({ navigation, route }) {
                                 fontSize={Metrics.ratio(14)}
                                 color={'#707070'}
                                 fontWeight='bold' 
-                                title={hows[0]?.content2}/>
+                                title={hows?.length > 0 &&  hows[0]?.content2}/>
 
                             {/* <CustomText
                                 style={{

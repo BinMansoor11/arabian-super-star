@@ -29,8 +29,13 @@ export default function Contact({ navigation }) {
             {name, email, phone, message},
             { headers: { "Content-Type": "application/json" } });
             console.log({contact:response?.data})
-            alert('Message Sent Successfully')
-            setIsLoading(false)
+if(response?.data.status === 'success'){
+    setIsLoading(false)
+    alert('Your message has been sent successfully')
+}else{
+    setIsLoading(false)
+    alert('Something went wrong')
+}
         } catch (error) {
             setIsLoading(false)
             console.log({ error })

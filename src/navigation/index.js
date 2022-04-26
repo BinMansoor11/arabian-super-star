@@ -32,7 +32,7 @@ const Stack = createStackNavigator();
 export default function StackNavigator() {
     const { isLoggedIn } = useSelector(state => state.root);
     return (
-        // <Stack.Navigator headerMode="none" initialRouteName={"Login"} >
+        // <Stack.Navigator headerMode="none" initialRouteName={"Edit"} >
         <Stack.Navigator headerMode="none" initialRouteName={isLoggedIn ? 'MyTabs':"Login"} >
             <Stack.Screen name="Login" component={Login} />
             <Stack.Screen name="SignUp" component={SignUp} />

@@ -94,7 +94,7 @@ export default function Comments({ navigation, route }) {
                                 overflow: 'hidden',
                             }}
                                 source={{ uri: route?.params?.profilePic }}
-                                resizeMode='contain'
+                                resizeMode='cover'
                             />
                         </TouchableOpacity>
 
@@ -103,7 +103,9 @@ export default function Comments({ navigation, route }) {
 
                     <View style={{ width: '100%', }}>
                         {comments?.map((item, index) => {
-                            return <View style={{ flexDirection: 'row', paddingVertical: Metrics.ratio(10), paddingHorizontal: Metrics.ratio(20) }}>
+                            return <TouchableOpacity 
+                            onPress={() => navigation.navigate('MyTabs', { profileId: item?.user_comment?.id })}
+                            style={{ flexDirection: 'row', paddingVertical: Metrics.ratio(10), paddingHorizontal: Metrics.ratio(20) }}>
                                 <Image style={{
                                     width: Metrics.ratio(35),
                                     height: Metrics.ratio(35),
@@ -112,7 +114,7 @@ export default function Comments({ navigation, route }) {
                                     overflow: 'hidden',
                                 }}
                                     source={{ uri: `https://arabiansuperstar.org/public/${item?.user_comment?.social_profile_image}` }}
-                                    resizeMode='contain'
+                                    resizeMode='cover'
                                 />
                                 <View>
                                     <CustomText
@@ -136,10 +138,22 @@ export default function Comments({ navigation, route }) {
                                         fontWeight='normal'
                                         title={item?.comment}
                                     />
+
+<CustomText
+                                        style={{
+                                            width: Metrics.screenWidth * 0.8,
+                                            // marginTop: Metrics.ratio(5),
+                                            // textAlign:'center',
+                                        }}
+                                        fontSize={Metrics.ratio(10)}
+                                        color='rgba(24, 24, 24, 0.3)'
+                                        fontWeight='normal'
+                                        title={item?.time}
+                                    />
                                 </View>
 
 
-                            </View>
+                            </TouchableOpacity>
                         })}
                     </View>
 

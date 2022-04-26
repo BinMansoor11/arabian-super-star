@@ -32,10 +32,12 @@ export default function Profile() {
     const [likes, setLikes] = useState(0)
     const [comments, setComments] = useState(0)
     const [rating, setRating] = useState(0)
-    const [isPaused, setIsPaused] = useState(false)
+    const [isPaused, setIsPaused] = useState(true)
+    const [isMuted, setIsMuted] = useState(true)
     const [user, setUser] = useState(null)
     const [stars, setStars] = useState(null)
     const [isLoading, setIsLoading] = useState(true)
+    const [frames, setFrames] = useState([])
 
 
     const getSvg = (ratings) => {
@@ -58,10 +60,10 @@ export default function Profile() {
     }
 
     const TopButtonSection = [
-        { isDisabled: user?.isAlreadyVoted ? true : false, color: user?.isAlreadyVoted ? Colors.primary : '#000', amount: votes, title: 'Vote', icon: require('../../assets/images/vote.png'), onPress: () => addVote() },
+        { isDisabled:  true, color:  '#000', amount: votes, title: 'Vote', icon: require('../../assets/images/vote.png'), onPress: () => addVote() },
         { isDisabled: user?.isAlreadyLiked ? true : false, color: user?.isAlreadyLiked ? Colors.primary : '#000', amount: likes, title: 'Likes', icon: require('../../assets/images/like.png'), onPress: () => like() },
         { isDisabled: false, color: '#000', amount: comments, title: 'Comments', icon: require('../../assets/images/chat.png'), onPress: () => navigation.navigate('Comments', { userId: user?.id, profilePic: `https://arabiansuperstar.org/public/${user?.social_profile_image}` }) },
-        { isDisabled: user?.isAlreadyRated ? true : false, color: user?.isAlreadyRated ? Colors.primary : '#000', amount: rating, title: 'Rating', icon:user?.rating && getSvg(user?.rating), onPress: () => (setRatingModalVisible(true)) },
+        { isDisabled: user?.isAlreadyRated ? true : false, color: user?.isAlreadyRated ? Colors.primary : '#000', amount: rating, title: 'Rating', icon: user?.rating && getSvg(user?.rating), onPress: () => (setRatingModalVisible(true)) },
     ]
 
     const getUserDetails = async () => {
@@ -148,10 +150,10 @@ export default function Profile() {
 
 
     useEffect(() => {
-        isFocused && getUserDetails()
-        setTimeout(() => {
-            setIsPaused(true)
-        }, 500);
+        isFocused && (getUserDetails(), getIframe())
+        // setTimeout(() => {
+        //     setIsPaused(true)
+        // }, 500);
 
         return () => setStars(null)
     }, [isFocused])
@@ -167,20 +169,20 @@ export default function Profile() {
 
 
     const onShare = async () => {
-        console.log({Share})
+        console.log({ Share })
         const shareOptions = {
             title: 'Become an Arabian Superstar and get paid for your talent. Download the app here: https://play.google.com/store/apps/details?id=com.arabiansuperstar&hl=en',
             // email: 'email@example.com',
             social: Share.Social.EMAIL,
             failOnCancel: false,
-          };
+        };
         Share.open(shareOptions)
-  .then((res) => {
-    console.log(res);
-  })
-  .catch((err) => {
-    err && console.log(err);
-  });
+            .then((res) => {
+                console.log(res);
+            })
+            .catch((err) => {
+                err && console.log(err);
+            });
         // try {
         //     const result = await Share.open({
         //         message:
@@ -199,6 +201,25 @@ export default function Profile() {
         //     alert(error.message);
         // }
     };
+
+
+    const getIframe = async () => {
+        setIsLoading(true)
+        try {
+            const response = await axios.post('https://arabiansuperstar.org/api/get_iframes', { user_id: userData?.id    }, { headers: { 'content-type': 'application/json' } });
+            console.log({ frames: JSON.stringify(response?.data, {}, 4) })
+            setIsLoading(false)
+            setFrames(response?.data?.data)
+        //    if(response?.data?.status === 'success'){
+            //    setEmailVerified(false)  
+        //    }
+        } catch (error) {
+            // alert('Something went wrong')
+            console.log({ error })
+            setIsLoading(false)
+        }
+    }
+
 
     return (
         <Footer>
@@ -225,11 +246,11 @@ export default function Profile() {
                         top: Metrics.ratio(40),
                         right: Metrics.ratio(25),
                         zIndex: 111,
-                        backgroundColor:'rgba(0,0,0,0.1)',
+                        backgroundColor: 'rgba(0,0,0,0.1)',
                         height: Metrics.ratio(28),
                         width: Metrics.ratio(28),
-                        justifyContent:'center',
-                        alignItems:'center',
+                        justifyContent: 'center',
+                        alignItems: 'center',
                         borderRadius: Metrics.ratio(28)
                     }}
                         onPress={() => setOptionModalVisible(true)}><Icons.Entypo name={'dots-three-vertical'} color={'#fff'} size={Metrics.ratio(20)} />
@@ -403,8 +424,8 @@ export default function Profile() {
                                         }}
                                             source={require(`../../assets/images/star.png`)}
                                             resizeMode='contain'
-                                        /> : <WithLocalSvg asset={item.icon} /> :
-                                            <Image style={{
+                                        /> : <WithLocalSvg asset={item.icon}  /> :
+                                            <><Image style={{
                                                 height: Metrics.ratio(40),
                                                 width: Metrics.ratio(40),
                                                 tintColor: item.color
@@ -412,11 +433,19 @@ export default function Profile() {
                                                 source={item.icon}
                                                 resizeMode='contain'
                                             />
+                                            {index === 0 && <TouchableOpacity onPress={() => addVote()}><Image style={{
+                                            height: Metrics.ratio(40),
+                                            width: Metrics.ratio(40),
+                                            marginTop:20
+                                        }}
+                                            source={require(`../../assets/images/votestar.jpg`)}
+                                            resizeMode='contain'
+                                        /></TouchableOpacity>}
+                                            </>
                                         }
                                     </TouchableOpacity>
                                 </View>
                             })}
-
                             <Modal
                                 animationType="none"
                                 transparent={true}
@@ -479,7 +508,7 @@ export default function Profile() {
                             </Modal>
 
                         </View>
-
+                       
                         <View style={{ borderWidth: 0.25, borderColor: '#707070', width: Metrics.screenWidth * 0.8, marginTop: Metrics.ratio(30), alignSelf: 'center' }} />
 
 
@@ -593,7 +622,7 @@ export default function Profile() {
                         />
                         <View style={{ flexDirection: 'row', flexWrap: 'wrap', marginTop: Metrics.ratio(20) }}>
                             {user?.geller_images?.map((item, index) => {
-                                return <TouchableOpacity  onPress={() => setModalVisible(true)}>
+                                return <TouchableOpacity onPress={() => setModalVisible(true)}>
                                     <Image style={{
 
                                         height: Metrics.screenHeight * 0.2,
@@ -713,11 +742,11 @@ export default function Profile() {
                                 setVideoModalVisible(!videoModalVisible);
                             }}
                         >
-                            <View style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)', flex: 1, justifyContent: 'center' }}>
+                            <View style={{ backgroundColor: 'rgba(0, 0, 0, 0.7)', flex: 1, justifyContent: 'center' }}>
 
                                 <View style={{ flexDirection: 'row' }}><View >
                                     <TouchableOpacity
-                                        onPress={() => setIsPaused(!isPaused)}
+                                        onPress={() => (setIsPaused(!isPaused), setIsMuted(!isMuted))}
                                         style={{
 
                                             height: Metrics.screenHeight / 2,
@@ -730,12 +759,45 @@ export default function Profile() {
                                             source={require('../../assets/images/video-placeholder.png')}
                                             resizeMode='cover'
                                         /> :
-                                            <Video source={{ uri: `https://arabiansuperstar.org/public/${user?.video_path}` }} style={{ width: '100%', height: '100%' }} resizeMode='cover' paused={isPaused} muted={true} />}
+                                            <Video source={{ uri: `https://arabiansuperstar.org/public/${user?.video_path}` }} style={{ width: '100%', height: '100%' }} resizeMode='contain' paused={isPaused} muted={isMuted} />}
                                     </TouchableOpacity>
                                 </View>
                                 </View>
                             </View>
                         </Modal>
+
+{frames?.length > 0 &&  <><CustomText
+                            style={{
+                                width: Metrics.screenWidth * 0.8,
+                                alignSelf: 'center', marginTop: Metrics.ratio(20),
+                            }}
+                            fontSize={Metrics.ratio(16)}
+                            color='#484D54'
+                            fontWeight='bold'
+                            title={'URLs'}
+                        />
+                        {frames?.map((item, index) => {
+
+                        return<TouchableOpacity 
+                         onPress={() => (setIsPaused(!isPaused), setIsMuted(!isMuted))}
+                        style={{
+
+                            height: Metrics.screenHeight * 0.4,
+                            width: Metrics.screenWidth,
+                            // alignSelf: 'center',
+                            marginTop: Metrics.ratio(20),
+                            borderWidth: 1,
+                            borderColor: '#fff'
+                        }}>
+                           {isPaused ? <Image style={{ width: '100%', height: '100%' }}
+                                            source={require('../../assets/images/video-placeholder.png')}
+                                            resizeMode='cover'
+                                        /> :
+                                            <Video source={{ uri: item?.iframe_data }} style={{ width: '100%', height: '100%' }} resizeMode='contain' paused={isPaused} muted={isMuted} />}
+                        </TouchableOpacity>
+                        })}
+                        </>}
+
 
                         <CustomText
                             style={{

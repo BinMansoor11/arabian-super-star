@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { View, Text, TouchableOpacity, Image, TextInput, ScrollView } from 'react-native'
 import {
     Header,
@@ -14,35 +14,47 @@ import { Metrics, Colors, Images, Fonts, Icons } from '../../theme';
 
 
 
-const array = ['Arabian Superstar', 'Popular Choice', 'Fashion Style Icon', 'Pure Talent', 'The Gentleman', 'Pageant King']
+
+export default function VerifyCode({ navigation, route }) {
+
+    const [verificationCode, setVerificationCode] = useState(null);
 
 
-export default function VerifyCode({ navigation }) {
+    const checkCode = () => {
+    console.log({ route : route?.params?.code ,verificationCode})
+        
+        if (verificationCode == route?.params?.code) {
+            navigation.navigate('NewPassword',{email:route?.params?.email})
+        } else {
+            alert('Invalid Code')
+        }
+    }
+
     return (
         <View style={{ flex: 1, backgroundColor: '#fff' }}>
-             <TouchableOpacity 
-             onPress={()=> navigation.goBack()}
-             
-             style={{
+            <TouchableOpacity
+                onPress={() => navigation.goBack()}
+
+                style={{
                     marginTop: Metrics.screenHeight * 0.04,
                     marginBottom: Metrics.screenHeight * 0.01,
-                    flexDirection: 'row', 
+                    flexDirection: 'row',
                     alignItems: 'center',
                     width: Metrics.screenWidth * 0.8,
                     alignSelf: 'center',
                 }}>
-                    <Icons.Feather name={'chevron-left'} color={'rgba(46, 46, 46, 0.7)'} size={Metrics.ratio(24)} style={{marginLeft: -Metrics.ratio(7)}} />
-                    <CustomText
-                        style={{
-                            marginLeft: -Metrics.ratio(5),
-                        }}
-                        fontSize={Metrics.ratio(14)}
-                        color='rgba(46, 46, 46, 0.7)'
-                        fontWeight='bold'
-                        title={'Back'}
-                    />
+                <Icons.Feather name={'chevron-left'} color={'rgba(46, 46, 46, 0.7)'} size={Metrics.ratio(24)} style={{ marginLeft: -Metrics.ratio(7) }} />
+                <CustomText
+                    style={{
+                        marginLeft: -Metrics.ratio(5),
+                    }}
+                    fontSize={Metrics.ratio(14)}
+                    color='rgba(46, 46, 46, 0.7)'
+                    fontWeight='bold'
+                    title={'Back'}
+                />
 
-                </TouchableOpacity>
+            </TouchableOpacity>
             <ScrollView>
                 <View style={{ height: Metrics.screenHeight * 0.7 }}>
                     <CustomText
@@ -80,7 +92,11 @@ export default function VerifyCode({ navigation }) {
                         alignSelf: 'center',
                         marginTop: Metrics.ratio(10),
                     }}>
-                        <TextInput />
+                        <TextInput
+                            style={{ fontFamily: Fonts.type.RobotoRegular, color: '#000', width: Metrics.screenWidth * 0.8 }}
+                            onChangeText={text => setVerificationCode(text)}
+                            value={verificationCode}
+                        />
                     </View>
 
 
@@ -89,7 +105,7 @@ export default function VerifyCode({ navigation }) {
                 <View style={{ justifyContent: 'flex-end', height: Metrics.screenHeight * 0.2 }}>
 
                     <Button
-                        onPress={() => navigation.navigate('NewPassword')}
+                        onPress={() => checkCode()}
                         height={Metrics.ratio(50)}
                         width={Metrics.screenWidth * 0.8}
                         fontSize={Metrics.ratio(15)}
@@ -102,16 +118,16 @@ export default function VerifyCode({ navigation }) {
 
 
 
-<Image style={{
+                    <Image style={{
 
-height: Metrics.screenHeight * 0.07,
-width: Metrics.screenWidth * 0.6,
-alignSelf: 'center',
-marginTop: Metrics.ratio(10),
-}}
-source={require('../../assets/images/logo.png')}
-resizeMode='stretch'
-/>
+                        height: Metrics.screenHeight * 0.07,
+                        width: Metrics.screenWidth * 0.6,
+                        alignSelf: 'center',
+                        marginTop: Metrics.ratio(10),
+                    }}
+                        source={require('../../assets/images/logo.png')}
+                        resizeMode='stretch'
+                    />
                 </View>
             </ScrollView>
         </View>

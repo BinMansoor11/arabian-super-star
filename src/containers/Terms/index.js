@@ -44,9 +44,9 @@ export default function Terms({ navigation, route }) {
         setIsLoading(true)
         try {
             const response = await axios.get('https://arabiansuperstar.org/api/terms_and_condition');
-            setTerms(response?.data?.terms_and_conditions)
+            setTerms(response?.data?.data?.terms_and_conditions)
 
-            console.log({ response: response?.data?.terms_and_conditions })
+            console.log({ response: response?.data?.data?.terms_and_conditions })
             setIsLoading(false)
         } catch (error) {
             console.log({ error })
@@ -104,7 +104,7 @@ export default function Terms({ navigation, route }) {
                                 fontSize={Metrics.ratio(14)}
                                 color={'#000'}
                                 fontWeight='bold'
-                                title={terms[0]?.content}
+                                title={terms?.length > 0 && terms[0]?.content}
                             />
 
                             {/* <CustomText

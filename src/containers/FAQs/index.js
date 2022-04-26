@@ -44,9 +44,11 @@ export default function FAQs({ navigation, route }) {
         setIsLoading(true)
         try {
             const response = await axios.get('https://arabiansuperstar.org/api/faqs');
-            setFaqs(response?.data)
+            
 
-            console.log({ response: response?.data })
+            setFaqs(response?.data?.data)
+
+            console.log({ response: response?.data?.data})
             setIsLoading(false)
         } catch (error) {
             console.log({ error })
@@ -109,7 +111,7 @@ export default function FAQs({ navigation, route }) {
 
 
                             <View>
-                                {faqs?.map((item, index) => {
+                                {faqs?.length > 0 && faqs?.map((item, index) => {
                                     return <TouchableOpacity onPress={()=> setActiveIndex(index === activeIndex ? null : index)} style={{
                                         elevation:5, 
                                         borderRadius:5,

@@ -53,6 +53,7 @@ export default function Search({ navigation, route }) {
                  },
                 { headers: { "Content-Type": "application/json" } });
             console.log({ search: response })
+            setModalVisible(!modalVisible)
             setSearches(response?.data)
             setIsLoading(false)
         } catch (error) {

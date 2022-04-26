@@ -131,7 +131,7 @@ export default function SignUpThree({ navigation }) {
                             fontSize={Metrics.ratio(11)}
                             color='rgba(46, 46, 46, 0.5)'
                             fontWeight='normal'
-                            title={'(e.g, Football, Music, Reading, Dancing, etc.)'}
+                            title={'(e.g, Football, Music, Reading, Dancing, etc.) Limit 50 characters'}
                         />
                     </View>
                     <View style={{
@@ -143,7 +143,7 @@ export default function SignUpThree({ navigation }) {
                         alignSelf: 'center',
                         marginTop: Metrics.ratio(10),
                     }}>
-                        <TextInput value={_hobbies} multiline={true} onChangeText={(text) => setHobbies(text)} style={{ color: '#000', }} />
+                        <TextInput value={_hobbies} multiline={true} maxLength={50} onChangeText={(text) => setHobbies(text)} style={{ color: '#000', }} />
                     </View>
 
 
@@ -159,6 +159,7 @@ export default function SignUpThree({ navigation }) {
                         title={'You’re now nominated to be the Arabian Superstar enroll yourself for more titles!'}
                     />
 
+                        <ScrollView>
                     <View style={{
                         flexDirection: 'row',
                         width: Metrics.screenWidth * 0.8,
@@ -181,8 +182,10 @@ export default function SignUpThree({ navigation }) {
                             )
                         })}
 
+                            
 
                     </View>
+</ScrollView>
 
                 </View>
                 <View style={{ justifyContent: 'flex-end', flex: 1, height: Metrics.screenHeight * 0.2 }}>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { View, Text, TouchableOpacity, Image, TextInput, ScrollView } from 'react-native'
 import {
     Header,
@@ -32,7 +32,7 @@ export default function SignUpFour({ navigation }) {
     const [video, setVideo] = useState(video_path === '' ? null : video_path?.uri);
     const [about, setAbout] = useState(bio === '' ? null : bio)
     const [isPaused, setIsPaused] = useState(false)
-    const [sendImages, setSendImages] = useState([])
+    const [sendImages, setSendImages] = useState(null)
     const [sendVideo, setSendVideo] = useState(null)
 
 
@@ -42,7 +42,9 @@ export default function SignUpFour({ navigation }) {
             multiple: true,
             maxFiles: 21,
         }).then(image => {
-            image.forEach(async item => {
+        console.log({image})
+
+         image.forEach(async item => {
                 const res = await RNFS.readFile(item?.path, 'base64');
                 imgs.push({
                     uri: item?.path,
@@ -50,33 +52,13 @@ export default function SignUpFour({ navigation }) {
                     name: 'filename',
                     data: res
                 });
+                imgs?.length === image.length &&   setSendImages(imgs);
             })
         });
-
-        setSendImages(imgs);
-
-        // launchImageLibrary({}, (response) => {
-        //     // console.log(JSON.stringify(response?.assets[0]?.uri,null,2))
-        //     const newImages = [...images]
-        //     newImages[index]['uri'] = response?.assets[0]?.uri
-        //     // console.log({newImages})
-        //     setImages(newImages);
-
-        //     RNFS.readFile(response?.assets[0]?.uri, 'base64').then(res => {
-        //         setSendImages([...sendImages, {
-        //             uri: response?.assets[0]?.uri,
-        //             type: 'image/jpeg',
-        //             name: 'filename',
-        //             data:res
-        //         }]);
-        //     })
-        //     .catch(err => {
-        //         console.log(err.message, err.code);
-        //     });
-
-
-        // })
+  
+     
     }
+
 
     const getVideo = () => {
         launchImageLibrary(options, (response) => {
@@ -107,10 +89,16 @@ export default function SignUpFour({ navigation }) {
     const handleErrors = () => {
         if (about !== '') {
             //   return true;
-            dispatch({ type: 'bio', payload: about })
-            dispatch({ type: 'image_gallery', payload: sendImages })
-            dispatch({ type: 'video_path', payload: sendVideo })
-            navigation.navigate('Confirm')
+            if(sendImages?.length < 22){
+
+                dispatch({ type: 'bio', payload: about })
+                dispatch({ type: 'image_gallery', payload: sendImages })
+                dispatch({ type: 'video_path', payload: sendVideo })
+                navigation.navigate('Confirm')
+            }else{
+                alert('You can only upload 21 images')
+            }
+
         } else {
             alert('Please fill all the fields')
         }
@@ -167,7 +155,7 @@ export default function SignUpFour({ navigation }) {
                         alignSelf: 'center',
                         marginTop: Metrics.ratio(10),
                     }}>
-                        <TextInput value={about} multiline={true} textAlignVertical='top' onChangeText={(text) => setAbout(text)} style={{ color: '#000', fontSize: Metrics.ratio(11), height: '100%' }} placeholder='(155 characters)' placeholderTextColor={'rgba(0, 0, 0, 0.5)'} />
+                        <TextInput value={about} multiline={true} maxLength={100} textAlignVertical='top' onChangeText={(text) => setAbout(text)} style={{ color: '#000', fontSize: Metrics.ratio(11), height: '100%' }} placeholder='(100 characters)' placeholderTextColor={'rgba(0, 0, 0, 0.5)'} />
                     </View>
 
 
@@ -206,7 +194,7 @@ export default function SignUpFour({ navigation }) {
                                 justifyContent: 'center',
                                 overflow: 'hidden'
                             }}>
-                            {sendImages[0]?.uri ? <Image style={{ height: '100%', width: '100%', }} source={{ uri: sendImages[0]?.uri }} /> : <Icons.FontAwesome name='camera' size={Metrics.ratio(20)} color='#CC2D3A' />
+                            {sendImages && sendImages[0]?.uri ? <Image style={{ height: '100%', width: '100%', }} source={{ uri: sendImages[0]?.uri }} /> : <Icons.FontAwesome name='camera' size={Metrics.ratio(20)} color='#CC2D3A' />
                             }
                         </TouchableOpacity>
                        <CustomText
@@ -221,7 +209,7 @@ export default function SignUpFour({ navigation }) {
                             fontSize={Metrics.ratio(14)}
                             color='#000'
                             fontWeight='normal'
-                            title={`${sendImages?.length} Photos Selected`}
+                            title={`${sendImages ? sendImages?.length : '0'} Photos Selected`}
                         />
                         {/* {images?.map((item, index) => {
                             return (

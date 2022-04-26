@@ -1,4 +1,4 @@
-import React from 'react'
+import React,{useState} from 'react'
 import { View, Text, TouchableOpacity, Image, TextInput, ScrollView } from 'react-native'
 import {
     Header,
@@ -11,12 +11,35 @@ import {
     CheckBox
 } from '../../components'
 import { Metrics, Colors, Images, Fonts, Icons } from '../../theme';
-
-
-const array = ['Arabian Superstar', 'Popular Choice', 'Fashion Style Icon', 'Pure Talent', 'The Gentleman', 'Pageant King']
+import axios from 'axios';
 
 
 export default function ResetPassword({ navigation }) {
+
+    // const [verificationCode, setVerificationCode] = useState(null);
+    const [_email, setEmail] = useState('');
+
+
+    const verifyEmail = async () => {
+        // setIsLoading(true)
+        try {
+            const response = await axios.post('https://arabiansuperstar.org/api/send_varification_email', { email : _email }, { headers: { 'content-type': 'application/json' } });
+            console.log({ verifyEmail: response?.data })
+            // setIsLoading(false)
+           if(response?.data?.status === 'error'){
+            //   setVerificationCode(response?.data?.random_id)
+              navigation.navigate('VerifyCode', {code: response?.data?.random_id, email:_email})
+           }else {
+            alert(response?.data?.msg)
+           }
+        } catch (error) {
+            alert('Something went wrong')
+            console.log({ error })
+            // setIsLoading(false)  
+        }
+    }
+
+
     return (
         <View style={{ flex: 1, backgroundColor: '#fff' }}>
              <TouchableOpacity
@@ -82,7 +105,12 @@ export default function ResetPassword({ navigation }) {
                         alignSelf: 'center',
                         marginTop: Metrics.ratio(10),
                     }}>
-                        <TextInput />
+                        <TextInput 
+                         style={{ fontFamily: Fonts.type.RobotoRegular, color: '#000', width: Metrics.screenWidth * 0.8 }}
+                         onChangeText={text => setEmail(text)}                    
+                         value={_email}
+                        
+                        />
                     </View>
 
                 </View>
@@ -91,7 +119,7 @@ export default function ResetPassword({ navigation }) {
 
                 <View style={{ justifyContent: 'flex-end', height: Metrics.screenHeight * 0.2 }}>
                     <Button
-                        onPress={() => navigation.navigate('VerifyCode')}
+                        onPress={() => _email === '' ? alert('Email is Required') : verifyEmail()}
                         height={Metrics.ratio(50)}
                         width={Metrics.screenWidth * 0.8}
                         fontSize={Metrics.ratio(15)}

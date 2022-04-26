@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { View, Text, Modal, Image, TouchableOpacity, ScrollView } from 'react-native'
+import { View, TextInput, Modal, Image, TouchableOpacity, ScrollView } from 'react-native'
 import {
     Header,
     Button,
@@ -20,7 +20,6 @@ import Video from 'react-native-video';
 import RNFS from 'react-native-fs';
 
 
-const array = ['Arabian Superstar', 'Popular Choice', 'Fashion Style Icon', 'Pure Talent', 'The Gentleman', 'Pageant King']
 
 
 export default function Edit({ navigation, route }) {
@@ -43,6 +42,7 @@ export default function Edit({ navigation, route }) {
         social_id,
         social_type,
         userData,
+        
     } = useSelector(state => state.root);
     // } = useSelector(state => state.root);
     const [isLoading, setIsLoading] = useState(false)
@@ -92,6 +92,16 @@ export default function Edit({ navigation, route }) {
     const [sendVideo, setSendVideo] = useState(null)
 
     const [tabs, setTabs] = useState('Edit Profile');
+
+
+
+    const [verificationCode, setVerificationCode] = useState(null);
+    const [newVerificationCode, setNewVerificationCode] = useState(null);
+    const [_email, setEmail] = useState('');
+    const [emailVerified, setEmailVerified] = useState(false);
+    const [iFrame, setIframe] = useState('');
+
+
 
 
     const getPictures = (index) => {
@@ -320,10 +330,13 @@ export default function Edit({ navigation, route }) {
         bodyFormData.append('selected_nominities', userProfile?.nominations)
 
         const imgs = images.filter(image => Object.keys(image).length !== 0)
-        console.log({ imgs })
+        console.log({ imgs, kj:_phone.length })
         // bodyFormData.append('gellery', imgs?.length !== userProfile?.geller_images?.length ? imgs : userProfile?.geller_images)
         bodyFormData.append('gellery', imagesToBeSent?.length === 0 ? [] : imagesToBeSent)
-
+        if (_phone.length < 11 || _phone.length > 13) {
+            alert('Phone number must be greater than 11 digits and less than 13 digits')
+            return false
+        }
         try {
 
             const response = await axios.post('https://arabiansuperstar.org/api/edituser',
@@ -431,6 +444,71 @@ export default function Edit({ navigation, route }) {
         }
     }
 
+    const checkCode = () =>{
+        console.log({verificationCode , newVerificationCode})
+                if(verificationCode == newVerificationCode){
+                    setVerificationCode(null)
+                    // dispatch({ type: 'is_email_verified', payload: true })
+                    setEmailVerified(true)
+                    alert('Verification Successful')
+                }else{
+                    alert('Invalid Code')
+                }
+            }
+        
+            const verifyEmail = async () => {
+                setIsLoading(true)
+                try {
+                    const response = await axios.post('https://arabiansuperstar.org/api/send_varification_email', { email : _email === '' ? userProfile?.email : _email }, { headers: { 'content-type': 'application/json' } });
+                    console.log({ verifyEmail: response?.data })
+                    setIsLoading(false)
+                   if(response?.data?.status === 'success'){
+                      setVerificationCode(response?.data?.random_id)
+                   }else{
+                          alert(response?.data?.msg)
+                   }
+                } catch (error) {
+                    // alert('Something went wrong')
+                    console.log({ error })
+                    setIsLoading(false)
+                }
+            }
+
+            const updateEmail = async () => {
+                setIsLoading(true)
+                try {
+                    const response = await axios.post('https://arabiansuperstar.org/api/update_email', { email : _email, user_id:userProfile?.id }, { headers: { 'content-type': 'application/json' } });
+                    console.log({ verifyEmail: response?.data })
+                    setIsLoading(false)
+                //    if(response?.data?.status === 'success'){
+                       setEmailVerified(false)  
+                      alert('Email Updated Successfully')
+                //    }
+                } catch (error) {
+                    // alert('Something went wrong')
+                    console.log({ error })
+                    setIsLoading(false)
+                }
+            }
+
+            const addIframe = async () => {
+                setIsLoading(true)
+                try {
+                    const response = await axios.post('https://arabiansuperstar.org/api/insert_iframe', { iframe_data : iFrame, user_id: userProfile?.id }, { headers: { 'content-type': 'application/json' } });
+                    console.log({ verifyEmail: response?.data })
+                    setIsLoading(false)
+                //    if(response?.data?.status === 'success'){
+                    //    setEmailVerified(false)  
+                      alert('Iframe Added Successfully')
+                //    }
+                } catch (error) {
+                    // alert('Something went wrong')
+                    console.log({ error })
+                    setIsLoading(false)
+                }
+            }
+            
+
     return (
         <Footer>
             <View style={{ flex: 1, backgroundColor: '#fff' }}>
@@ -458,7 +536,7 @@ export default function Edit({ navigation, route }) {
                         <View style={{ flexDirection: 'row', alignSelf: 'center' }}>
                             <>
                                 <ScrollView horizontal={true} showsHorizontalScrollIndicator={false}>
-                                    {['Edit Profile', 'Edit Media', 'Edit Nominations'].map((item, index) => {
+                                    {['Edit Profile', 'Edit Media', 'Edit Nominations', 'Edit Email', 'Add Url'].map((item, index) => {
                                         return <TouchableOpacity onPress={() => setTabs(item)}>
                                             <CustomText
                                                 style={{
@@ -466,6 +544,7 @@ export default function Edit({ navigation, route }) {
                                                     alignSelf: 'center',
                                                     marginTop: Metrics.ratio(15),
                                                     marginLeft: Metrics.ratio(35),
+                                                    marginRight: index === 4 ?  Metrics.ratio(25) : 0
                                                 }}
                                                 fontSize={Metrics.ratio(24)}
                                                 color={tabs === item ? '#000' : 'rgba(0, 0, 0, 0.5)'}
@@ -567,7 +646,7 @@ export default function Edit({ navigation, route }) {
                                     value={gender === 0 ? 'Male' : 'Female'}
                                 />
                             </View> */}
-                            <View style={{
+                            {/* <View style={{
                                 flexDirection: 'row',
                                 justifyContent:
                                     'space-between',
@@ -576,14 +655,13 @@ export default function Edit({ navigation, route }) {
                                 alignSelf: 'center',
                                 height: Metrics.screenHeight * 0.1
                             }}>
-                                {/* <Icons.Feather name='lock' size={Metrics.ratio(20)} /> */}
                                 <CustomTextInput
                                     customStyle={{ width: Metrics.screenWidth * 0.8 }}
                                     placeholder='Email'
                                     value={userProfile?.email}
                                     disabled
                                 />
-                            </View>
+                            </View> */}
                             <View style={{
                                 flexDirection: 'row',
                                 justifyContent:
@@ -656,6 +734,7 @@ export default function Edit({ navigation, route }) {
                                     value={_bio !== '' ? _bio : userProfile?.bio}
                                     onChangeText={(text) => setBio(text)}
                                     multiline={true}
+                                    maxLength={100}
                                 />
                             </View>
 
@@ -671,6 +750,7 @@ export default function Edit({ navigation, route }) {
                                 <CustomTextInput
                                     customStyle={{ width: Metrics.screenWidth * 0.8 }}
                                     placeholder='Hobbies'
+                                    maxLength={50}
                                     value={_hobbies !== '' ? _hobbies : userProfile?.hobbies}
                                     onChangeText={(text) => setHobbies(text)}
                                 />
@@ -890,7 +970,7 @@ export default function Edit({ navigation, route }) {
                                     style={{ alignSelf: 'center', marginTop: Metrics.ratio(15), marginBottom: Metrics.ratio(20) }}
                                     radius={Metrics.ratio(11)}
                                 />
-                            </> : <View style={{ height: Metrics.screenHeight * 0.7 }}>
+                            </> : tabs === 'Edit Nominations' ? <View style={{ height: Metrics.screenHeight * 0.7 }}>
                                 <CustomText
                                     style={{
                                         width: Metrics.screenWidth * 0.8,
@@ -928,7 +1008,130 @@ export default function Edit({ navigation, route }) {
 
                                 </View>
 
-                            </View>}
+                            </View> : tabs === 'Edit Email' ? <View style={{ height: Metrics.screenHeight * 0.7,paddingTop: Metrics.screenHeight * 0.05}}>
+                            <CustomText
+                                style={{
+                                    width: Metrics.screenWidth * 0.8,
+                                    alignSelf: 'center', marginTop: Metrics.ratio(10),
+                                    marginTop: Metrics.ratio(10),
+                                    fontFamily: Fonts.type.RobotoRegular
+                                }}
+                                fontSize={Metrics.ratio(14)}
+                                color='#000'
+                                fontWeight='normal'
+                                title={'Edit Email'}
+                            />
+
+<View style={{
+                                height: Metrics.ratio(50),
+                                borderWidth: Metrics.ratio(1),
+                                borderColor: '#CC2D3A',
+                                borderRadius: Metrics.ratio(11),
+                                width: Metrics.screenWidth * 0.8,
+                                alignSelf: 'center',
+                                marginTop: Metrics.ratio(10),
+                                flexDirection: 'row',
+                            }}>
+                                <TextInput
+                                    style={{ fontFamily: Fonts.type.RobotoRegular, color: '#000', width: Metrics.screenWidth * 0.8 }}
+                                    // keyboardType={item.title === 'Mobile Number' ? 'numeric' : 'default'}
+                                    // editable={emailVerified}
+
+                                    onChangeText={text => setEmail(text)}                    
+                                    value={_email === '' ? userProfile?.email : _email}
+                                />
+                               
+                            </View>
+                                    
+                             <>
+                                {verificationCode && <>
+                                <CustomText
+                                style={{
+                                    width: Metrics.screenWidth * 0.8,
+                                    alignSelf: 'center', marginTop: Metrics.ratio(10),
+                                    marginTop: Metrics.ratio(10),
+                                    fontFamily: Fonts.type.RobotoRegular
+                                }}
+                                fontSize={Metrics.ratio(14)}
+                                color='#000'
+                                fontWeight='normal'
+                                title={'Verify Code'}
+                            />
+                            <View style={{
+                                height: Metrics.ratio(50),
+                                borderWidth: Metrics.ratio(1),
+                                borderColor: '#CC2D3A',
+                                borderRadius: Metrics.ratio(11),
+                                width: Metrics.screenWidth * 0.8,
+                                alignSelf: 'center',
+                                marginTop: Metrics.ratio(10),
+                                flexDirection: 'row',
+                            }}>
+                                <TextInput
+                                    style={{ fontFamily: Fonts.type.RobotoRegular, color: '#000', width:Metrics.screenWidth * 0.8 }}
+                                    keyboardType={'numeric'}
+                                    // editable={index === 1 ? false : true}
+                                    value={newVerificationCode}
+                                    onChangeText={text => setNewVerificationCode(text)}
+                                />
+                            </View>
+                            </>
+                            }
+                           <Button
+                                    onPress={() => userProfile?.email !== '' ? verificationCode ? checkCode() : emailVerified ? updateEmail() : verifyEmail() : alert('Email is required')}
+                                    height={Metrics.ratio(35)}
+                                    width={Metrics.screenWidth * 0.8}
+                                    fontSize={Metrics.ratio(15)}
+                                    title={!verificationCode ? emailVerified ? 'Edit Email' : 'Send Code':  'Verify Email'}
+                                    fontFamily={Fonts.type.RobotoRegular}
+                                    style={{ alignSelf: 'center', marginVertical: Metrics.ratio(10) }}
+                                    radius={Metrics.ratio(11)}
+                                />
+                            </>
+
+                            </View> : <View style={{ height: Metrics.screenHeight * 0.7 }}>
+                            <CustomText
+                                style={{
+                                    width: Metrics.screenWidth * 0.8,
+                                    alignSelf: 'center', marginTop: Metrics.ratio(10),
+                                    marginTop: Metrics.ratio(10),
+                                    fontFamily: Fonts.type.RobotoRegular
+                                }}
+                                fontSize={Metrics.ratio(14)}
+                                color='#000'
+                                fontWeight='normal'
+                                title={'Add Url'}
+                            />
+                            <View style={{
+                                height: Metrics.ratio(50),
+                                borderWidth: Metrics.ratio(1),
+                                borderColor: '#CC2D3A',
+                                borderRadius: Metrics.ratio(11),
+                                width: Metrics.screenWidth * 0.8,
+                                alignSelf: 'center',
+                                marginTop: Metrics.ratio(10),
+                                flexDirection: 'row',
+                            }}>
+                                <TextInput
+                                    style={{ fontFamily: Fonts.type.RobotoRegular, color: '#000', width: Metrics.screenWidth * 0.8 }}
+                                    // keyboardType={item.title === 'Mobile Number' ? 'numeric' : 'default'}
+                                    // editable={iFrame}
+
+                                    onChangeText={text => setIframe(text)}                    
+                                    value={iFrame}
+                                />
+                            </View>
+                                <Button
+                                    onPress={() => iFrame !== '' ? addIframe() : alert('Url is required')}
+                                    height={Metrics.ratio(35)}
+                                    width={Metrics.screenWidth * 0.8}
+                                    fontSize={Metrics.ratio(15)}
+                                    title={'Add Url'}
+                                    fontFamily={Fonts.type.RobotoRegular}
+                                    style={{ alignSelf: 'center', marginVertical: Metrics.ratio(10) }}
+                                    radius={Metrics.ratio(11)}
+                                />
+                                </View>}
                     </View>
                     <View style={{ height: '100%', width: '100%', justifyContent: 'flex-end', alignItems: 'center', flexDirection: 'row' }}>
                         <Modal

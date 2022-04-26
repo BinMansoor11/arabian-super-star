@@ -88,10 +88,11 @@ export default function Notifications({ navigation, route }) {
 
                     <View style={{ width: '100%', }}>
                         {notifications?.map((item, index) => {
-                            return <View style={{ flexDirection: 'row', paddingVertical: Metrics.ratio(10), paddingHorizontal: Metrics.ratio(20) }}>
-                                <Icons.MaterialIcons name={'circle-notifications'} color={'#CC2D3A'} size={Metrics.ratio(32)} style={{ marginHorizontal: Metrics.ratio(10) }} />
+                            return <TouchableOpacity
+                            onPress={() => navigation.navigate('MyTabs', { profileId: item?.data?.profile_id })}>
+                                {/* <Icons.MaterialIcons name={'circle-notifications'} color={'#CC2D3A'} size={Metrics.ratio(32)} style={{ marginHorizontal: Metrics.ratio(10) }} /> */}
 
-                                <View>
+                                <View  style={{  width: Metrics.screenWidth * 0.8, alignSelf:'center', marginTop:15,paddingBottom:15, borderBottomColor: 'rgba(24, 24, 24, 0.4)', borderBottomWidth:1 }}>
                                     <CustomText
                                         style={{
                                             width: Metrics.screenWidth * 0.8,
@@ -113,10 +114,21 @@ export default function Notifications({ navigation, route }) {
                                         fontWeight='normal'
                                         title={item?.message}
                                     />
+                                    <CustomText
+                                        style={{
+                                            width: Metrics.screenWidth * 0.8,
+                                            // marginTop: Metrics.ratio(5),
+                                            // textAlign:'center',
+                                        }}
+                                        fontSize={Metrics.ratio(10)}
+                                        color='rgba(24, 24, 24, 0.3)'
+                                        fontWeight='normal'
+                                        title={item?.time}
+                                    />
                                 </View>
 
 
-                            </View>
+                            </TouchableOpacity>
                         })}
                     </View>
 

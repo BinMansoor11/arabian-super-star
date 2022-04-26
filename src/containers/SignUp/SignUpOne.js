@@ -77,6 +77,11 @@ export default function SignUpOne({ navigation }) {
     const handleErrors = async () => {
         if (!name !== '' && !userName !== '' && _email !== '' && _password !== '' && retypePassword !== '' && mobile !== '') {
             //   return true;
+            if (mobile.length < 11 || mobile.length > 13) {
+                alert('Phone number must be greater than 11 digits and less than 13 digits')
+                return false
+            }
+
             if (_password === retypePassword) {
                 setIsLoading(true)
                 if (await checkEmail(_email)) {

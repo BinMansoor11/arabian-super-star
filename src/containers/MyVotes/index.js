@@ -12,12 +12,14 @@ import {
     ActivityIndicator
 } from '../../components'
 import { Metrics, Colors, Images, Fonts, Icons } from '../../theme';
+import { useNavigation, useRoute, useIsFocused } from '@react-navigation/native';
 import { useDispatch, useSelector } from 'react-redux';
 import axios from 'axios';
 
 
 
 export default function MyVotes({ navigation, route }) {
+    const isFocused = useIsFocused();
     const { userData } = useSelector(state => state.root);
     const [isLoading, setIsLoading] = useState(true)
     const [bucketData, setBucketData] = useState(true)
@@ -31,7 +33,7 @@ export default function MyVotes({ navigation, route }) {
             const response = await axios.post('https://arabiansuperstar.org/api/vote_bucket',
             {userid:userData?.id},
             { headers: { "Content-Type": "application/json" } });
-            console.log({res:response?.data})
+            console.log({voteBucket:response?.data})
             setBucketData(response?.data?.data)
             setIsLoading(false)
         } catch (error) {
@@ -50,8 +52,8 @@ export default function MyVotes({ navigation, route }) {
             console.log({Vote:response?.data, bucketData})
 
             const duplicate = {...bucketData}
-            duplicate.avilable_votes = bucketData?.avilable_votes - 1
-            duplicate.vote_bucket = bucketData?.vote_bucket + 1
+            duplicate.avilable_votes = JSON.parse(bucketData?.avilable_votes) + 1
+            duplicate.vote_bucket = JSON.parse(bucketData?.vote_bucket) - 1
             setBucketData(duplicate)
 
             setIsLoading(false)
@@ -64,7 +66,7 @@ export default function MyVotes({ navigation, route }) {
 
     useEffect(() => {
         voteBucket()
-    },[])
+    },[isFocused])
 
 
     return (
@@ -160,7 +162,7 @@ export default function MyVotes({ navigation, route }) {
                         fontWeight='bold'
                         title={'Available Votes'}
                     />
-                    <CustomText
+                   <CustomText
                         style={{
                             // width: Metrics.screenWidth * 0.8,
                             alignSelf: 'center', marginTop: Metrics.ratio(10),
@@ -168,7 +170,7 @@ export default function MyVotes({ navigation, route }) {
                         fontSize={Metrics.ratio(14)}
                         color='#000'
                         fontWeight='normal'
-                        title={bucketData?.avilable_votes}
+                        title={bucketData?.vote_bucket}
                     />
 
                     <CustomText
@@ -181,8 +183,7 @@ export default function MyVotes({ navigation, route }) {
                         fontWeight='bold'
                         title={'My Votes'}
                     />
-
-<CustomText
+                     <CustomText
                         style={{
                             // width: Metrics.screenWidth * 0.8,
                             alignSelf: 'center', marginTop: Metrics.ratio(10),
@@ -190,8 +191,10 @@ export default function MyVotes({ navigation, route }) {
                         fontSize={Metrics.ratio(14)}
                         color='#000'
                         fontWeight='normal'
-                        title={bucketData?.vote_bucket}
+                        title={bucketData?.avilable_votes}
                     />
+
+
 
 <Button
                     onPress={() => addVote()}
